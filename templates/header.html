@@ -20,9 +20,14 @@
           Connecté en tant que {{.CurrentUser.Username}}
         </button>
         {{else}}
+        {{if .CurrentUser.LogStatus}} <button class="login-btn">
+          Connecté en tant que {{.CurrentUser.Username}}
+        </button>
+        {{else}}
         <button class="login-btn" onclick="openLoginModal()">
           Connexion/Inscription
         </button>
+        {{end}}
         {{end}}
       </nav>
     </header>
