@@ -8,20 +8,22 @@
     <div class="main-container">
         <!-- Sidebar -->
         <div class="sidebar">
-            <p>>Dashboard</p>
+            <p>Gérer le forum</p>
             
             <!-- Menu déroulant Gestion des posts -->
             <details>
                 <summary>Gestion des sujets</summary>
-                {{range .Topics}}<a href="{{.TopicID}}" class="menu-item">{{.Name}}</a> ouvert par {{(index .Messages 0).Author.Username}} {{end}}
+                {{range .Topics}}<a href="{{.TopicID}}" class="menu-item" target="_blank">{{.Name}}</a> ouvert par {{(index .Messages 0).Author.Username}} {{end}}
             </details>
             
             <!-- Menu déroulant Gestion des catégories -->
             <details>
                 <summary>Gestion des categories</summary>
-                 {{range .Categories}}<a href="{{.ID}}" class="menu-item">{{.Name}}</a> 
+                <div class="admin-list">
+                 {{range .Categories}}<a href="/categorie/{{.ID}}" class="menu-item" target="_blank">{{.Name}}</a> 
                 {{end}}
-                <a href="add" class="menu-item">Créer une nouvelle catégorie</a>
+                </div>
+                <a href="addcat" class="menu-item">Créer une nouvelle catégorie</a>
             </details>
             
             <!-- Menu déroulant Gestion des users -->
@@ -38,7 +40,7 @@
         <div class="content-area">
             <!-- Dashboard Header -->
             <div class="dashboard-header">
-                <h1>Dashboard</h1>
+                <h1>Panneau d'administration</h1>
             </div>
 
         <!--statistics table-->
@@ -52,43 +54,34 @@
 
             <!-- Recent Posts Table -->
             <div class="table-container">
-                <div class="table-title">recent posts</div>
-                <table>
+                <div class="table-title">Messages postés dans les 30 derniers jours</div>
+                <div class="admin-list"><table>
                     <thead>
                         <tr>
+                            <th>Aperçu</th>
                             <th>Sujet</th>
                             <th>Auteur</th>
-                            <th>Aperçu</th>
                             <th>Interactions</th>
                         </tr>
                     </thead>
                     <tbody>
+                        {{range .PostList}}
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td> <pre>{{preview .Content 200}} </pre></td>
+                            <td>{{preview .TopicName 20}}</td>
+                            <td> {{ .Author.Username}} </td>
+                            <td> 👍 {{.Likes}} / 👎 {{.Dislikes}} </td>
                         </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {{end}}
                     </tbody>
                 </table>
+                </div>
             </div>
 
             <!-- Forum Categories Table -->
             <div class="table-container">
-                <div class="table-title">forum categories</div>
-                <table>
+                <div class="table-title">Liste des catégories</div>
+               <div class="admin-list"> <table>
                     <thead>
                         <tr>
                             <th>Nom</th>
@@ -99,13 +92,12 @@
                     <tbody>
                         {{range .Categories }}<tr>
                             <td> <a href="/categorie/{{.ID}}" target="_blank">{{.Name}}</a></td>
-                            <td> {{.Description}} </td>
+                            <td> <pre>{{preview .Description 200}}</pre> </td>
                             <td> {{range .Topics}} <a href="/topic/{{.TopicID}}" target="_blank">{{.Name}} </a><br> {{end}} </td>
                         </tr>
                         {{end}}
                     </tbody>
-                </table>
-                <button class="add-btn">add new categories</button>
+                </table></div>
             </div>
         </div>
     </div>
