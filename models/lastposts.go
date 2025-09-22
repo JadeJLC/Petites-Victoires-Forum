@@ -6,3 +6,11 @@ type LastPost struct {
 	Message
 	TopicName string
 }
+
+type Stats struct {
+	TotalTopics   int
+	LastMonthPost int
+	LastUser      string
+	TotalUsers    int
+	Reported      int
+}
