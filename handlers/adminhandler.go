@@ -14,6 +14,10 @@ import (
 	admin "github.com/Mathis-Pain/Forum/utils/adminfuncs"
 )
 
+var funcShort = template.FuncMap{
+	"preview": utils.Preview,
+}
+
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
@@ -61,7 +65,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(parts) == 3 && parts[1] == "admin" {
-		adminHome(categories, topics, stats, users, w, currentUser)
+		adminHome(categories, topics, stats, users, w, currentUser, lastmonthpost)
 	} else if len(parts) > 3 {
 		fmt.Println(parts[2])
 		switch parts[1] {
@@ -170,13 +174,14 @@ func adminUsers(users []models.User, w http.ResponseWriter) {
 	}
 }
 
-func adminHome(categories []models.Category, topics []models.Topic, stats models.Stats, users []models.User, w http.ResponseWriter, currentUser models.UserLoggedIn) {
+func adminHome(categories []models.Category, topics []models.Topic, stats models.Stats, users []models.User, w http.ResponseWriter, currentUser models.UserLoggedIn, postList []models.LastPost) {
 	data := struct {
 		PageName    string
 		Categories  []models.Category
 		Topics      []models.Topic
 		Users       []models.User
 		Stats       models.Stats
+		PostList    []models.LastPost
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    "Panneau d'administration",
@@ -184,17 +189,23 @@ func adminHome(categories []models.Category, topics []models.Topic, stats models
 		Topics:      topics,
 		Users:       users,
 		Stats:       stats,
+		PostList:    postList,
 		CurrentUser: currentUser,
 	}
 
-	pageToLoad, err := template.ParseFiles("templates/admin/admin.html", "templates/admin/adminheader.html", "templates/initpage.html", "templates/login.html")
-	if err != nil {
-		log.Printf("<adminhandler.go> Erreur dans la génération du template adminHome : %v", err)
-		utils.InternalServError(w)
-		return
-	}
+	pageToLoad := template.Must(template.New("admin.html").Funcs(funcShort).ParseFiles("templates/admin/admin.html",
+		"templates/admin/adminheader.html",
+		"templates/initpage.html",
+		"templates/login.html"))
 
-	err = pageToLoad.Execute(w, data)
+	// pageToLoad, err := template.Funcs(funcShort).ParseFiles("templates/admin/admin.html", "templates/admin/adminheader.html", "templates/initpage.html", "templates/login.html")
+	// if err != nil {
+	// 	log.Printf("<adminhandler.go> Erreur dans la génération du template adminHome : %v", err)
+	// 	utils.InternalServError(w)
+	// 	return
+	// }
+
+	err := pageToLoad.Execute(w, data)
 	if err != nil {
 		log.Printf("<adminhandler.go> Erreur dans la lecture du template adminHome : %v", err)
 		utils.InternalServError(w)

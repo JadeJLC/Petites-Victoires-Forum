@@ -22,6 +22,8 @@ func LastMonthPost() ([]models.LastPost, int, error) {
             m.content,
             m.created_at,
             m.user_id,
+			m.likes,
+			m.dislikes,
 			u.username,
             t.name
         FROM message m
@@ -41,7 +43,7 @@ func LastMonthPost() ([]models.LastPost, int, error) {
 	for rows.Next() {
 		var currentPost models.LastPost
 
-		err := rows.Scan(&currentPost.MessageID, &currentPost.TopicID, &currentPost.Content, &currentPost.Created, &currentPost.Author.ID, &currentPost.Author.Username, &currentPost.TopicName)
+		err := rows.Scan(&currentPost.MessageID, &currentPost.TopicID, &currentPost.Content, &currentPost.Created, &currentPost.Author.ID, &currentPost.Likes, &currentPost.Dislikes, &currentPost.Author.Username, &currentPost.TopicName)
 		if err != nil {
 			log.Print("<lastmonthpost.go> Erreur dans le parcours de la base de données :", err)
 			return nil, 0, err
