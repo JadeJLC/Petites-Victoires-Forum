@@ -23,8 +23,7 @@ func LikePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ChangeLikes(userID, likedPost)
-
-	url := fmt.Sprintf("/topic/%d", likedPost.MessageID)
+	url := fmt.Sprintf("/topic/%d#%d", likedPost.TopicID, likedPost.MessageID)
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 
@@ -38,7 +37,7 @@ func DislikePostHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	utils.ChangeDisLikes(userID, likedPost)
-	url := fmt.Sprintf("/topic/%d", likedPost.MessageID)
+	url := fmt.Sprintf("/topic/%d#%d", likedPost.TopicID, likedPost.MessageID)
 	http.Redirect(w, r, url, http.StatusSeeOther)
 }
 

@@ -14,13 +14,13 @@ func AddLikesAndDislikes(db *sql.DB, postID, userID int, table string) error {
 	case "dislike":
 		sqlUpdate = `INSERT INTO dislike (user_id, message_id) VALUES(?, ?)`
 	}
-	result, err := db.Exec(sqlUpdate, userID, postID)
+	_, err := db.Exec(sqlUpdate, userID, postID)
 	if err != nil {
 		log.Printf("<updatelikes.go> Erreur dans l'ajout du like/dislike sur le post %d : %v\n", postID, err)
 		return err
 	}
-	n, _ := result.RowsAffected()
-	log.Printf("<updatelikes.go> %d %s ajouté sur le message %d par l'utilisateur n°%d)\n", n, table, postID, userID)
+	// n, _ := result.RowsAffected()
+	// log.Printf("<updatelikes.go> %d %s ajouté sur le message %d par l'utilisateur n°%d)\n", n, table, postID, userID)
 
 	return nil
 }
@@ -34,13 +34,13 @@ func RemoveLikesAndDislikes(db *sql.DB, postID, userID int, table string) error 
 	case "dislike":
 		sqlUpdate = `DELETE FROM dislike WHERE user_id = ? AND message_id = ?`
 	}
-	result, err := db.Exec(sqlUpdate, userID, postID)
+	_, err := db.Exec(sqlUpdate, userID, postID)
 	if err != nil {
 		log.Printf("<updatelikes.go> Erreur dans la suppression du like/dislike sur le post %d : %v", postID, err)
 		return err
 	}
-	n, _ := result.RowsAffected()
-	log.Printf("<updatelikes.go> %d %s supprimé sur le message %d par l'utilisateur n°%d)", n, table, postID, userID)
+	// n, _ := result.RowsAffected()
+	// log.Printf("<updatelikes.go> %d %s supprimé sur le message %d par l'utilisateur n°%d)", n, table, postID, userID)
 
 	return nil
 }
@@ -54,13 +54,13 @@ func UpdateLikesAndDislikes(db *sql.DB, postID, userID, likes, dislikes int, tab
 		return err
 	}
 	defer stmt.Close()
-	result, err := stmt.Exec(dislikes, likes, postID)
+	_, err = stmt.Exec(dislikes, likes, postID)
 	if err != nil {
 		log.Print(err)
 		return err
 	}
-	n, _ := result.RowsAffected()
-	log.Printf("<updatelikes.go> La table message a été mise à jour sur %d lignes (message ID : %d)", n, postID)
+	// n, _ := result.RowsAffected()
+	// log.Printf("<updatelikes.go> La table message a été mise à jour sur %d lignes (message ID : %d)", n, postID)
 
 	return nil
 }
