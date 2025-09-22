@@ -8,19 +8,29 @@ import (
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
-func GetAllTopics(categories []models.Category, db *sql.DB) ([]models.Topic, error) {
+func GetAllTopics(categories []models.Category, db *sql.DB) ([]models.Category, []models.Topic, error) {
+	for i := 0; i < len(categories); i++ {
+		var err error
+		categories[i], err = getdata.GetCatDetails(db, categories[i].ID)
+		categories[i].Topics, err = getdata.GetTopicList(db, categories[i].ID)
+		if err != nil && err != sql.ErrNoRows {
+			return categories, nil, err
+		}
+
+	}
+
 	var topics []models.Topic
 
 	for i := 0; i < len(categories); i++ {
 		topicList, err := getdata.GetTopicList(db, categories[i].ID)
 		if err != nil {
 			log.Print("<adminhandler.go> Erreur dans la récupération des sujets :", err)
-			return nil, err
+			return categories, nil, err
 		}
 		topics = append(topics, topicList...)
 	}
 
-	return topics, nil
+	return categories, topics, nil
 }
 
 func GetStats(topics []models.Topic) ([]models.LastPost, models.Stats, []models.User, error) {

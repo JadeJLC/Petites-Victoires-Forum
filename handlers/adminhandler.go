@@ -48,7 +48,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	parts := strings.Split(r.URL.Path, "/")
 
-	topics, err := admin.GetAllTopics(categories, db)
+	categories, topics, err := admin.GetAllTopics(categories, db)
 	if err != nil {
 		log.Print("Erreur dans la récupération des sujets", err)
 		utils.InternalServError(w)

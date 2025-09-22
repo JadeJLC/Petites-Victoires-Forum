@@ -18,7 +18,7 @@
     <!-- Sidebar -->
       <aside class="sidebar">
         {{range .Topic.Messages}}
-        • <a href="#{{.MessageID}}">Message du {{.Created}}</a> par <a href="/user/{{.Author.ID}}">{{.Author.Username}}</a>
+        • <a href="#{{.MessageID}}">Message du {{.Created}}</a> par {{.Author.Username}}
       <br>
       {{end}}
       </aside>
