@@ -31,6 +31,7 @@ func InitRoutes() *http.ServeMux {
 	mux.HandleFunc("/categorie/", handlers.CategoriesHandler)
 	mux.HandleFunc("/topic/", handlers.TopicHandler)
 	mux.HandleFunc("/test", handlers.TestHandler)
+	mux.HandleFunc("/admin/", handlers.AdminHandler)
 
 	mux.HandleFunc("/like", subhandlers.LikePostHandler)
 	mux.HandleFunc("/dislike", subhandlers.DislikePostHandler)

@@ -26,7 +26,7 @@
         </nav>
     </header>
 
-    <div class="main-container">
+    <div class="main-container" >
         <!-- Sidebar -->
         <div class="sidebar">
             <p>>Dashboard</p>
@@ -34,22 +34,22 @@
             
             <!-- Menu déroulant Gestion des posts -->
             <details>
-                <summary>gestion des posts</summary>
-                <a href="all-post.html" class="menu-item">all posts</a>
-                <a href="add-posts.html" class="menu-item">add new posts</a>
+                <summary>Gestion des sujets</summary>
+                {{range .Topics}}<a href="{{.TopicID}}" class="menu-item">{{.Name}}</a> ouvert par {{(index .Messages 0).Author.Username}} {{end}}
             </details>
             
             <!-- Menu déroulant Gestion des catégories -->
             <details>
-                <summary>gestion des categories</summary>
-                <a href="all-categories.html" class="menu-item">all categories</a>
-                <a href="add-category.html" class="menu-item">add categories</a>
+                <summary>Gestion des categories</summary>
+                 {{range .Categories}}<a href="{{.ID}}" class="menu-item">{{.Name}}</a> 
+                <div>{{.Description}}</div>{{end}}
+                <a href="add" class="menu-item">Créer une nouvelle catégorie</a>
             </details>
             
             <!-- Menu déroulant Gestion des users -->
             <details>
-                <summary>gestion des users</summary>
-                <a href="all-users.html" class="menu-item">all users</a>
+                <summary>Gestion des utilisateurs</summary>
+                 {{range .Users}}<img src="{{.ProfilPic}}"/><span class="menu-item">{{.Username}}</span> {{end}}
             </details>
             
             <!-- Lien simple -->

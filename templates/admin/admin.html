@@ -1,20 +1,9 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-   {{template "InitPage"}}
-    <title>Dashboard Admin</title>*
-<style>
-     .main-container {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-            padding: 20px;
-        }
-</style>
-</head>
+   {{template "InitPage" .}}
 <body>
     <!-- Header -->
-   {{template "ForumHeader"}}
+   {{template "AdminHeader" .}}
 
     <div class="main-container">
         <!-- Sidebar -->
@@ -23,22 +12,22 @@
             
             <!-- Menu déroulant Gestion des posts -->
             <details>
-                <summary>gestion des posts</summary>
-                <a href="#" class="menu-item">all posts</a>
-                <a href="#" class="menu-item">add new posts</a>
+                <summary>Gestion des sujets</summary>
+                {{range .Topics}}<a href="{{.TopicID}}" class="menu-item">{{.Name}}</a> ouvert par {{(index .Messages 0).Author.Username}} {{end}}
             </details>
             
             <!-- Menu déroulant Gestion des catégories -->
             <details>
-                <summary>gestion des categories</summary>
-                <a href="#" class="menu-item">all categories</a>
-                <a href="#" class="menu-item">add categories</a>
+                <summary>Gestion des categories</summary>
+                 {{range .Categories}}<a href="{{.ID}}" class="menu-item">{{.Name}}</a> 
+                <div>{{.Description}}</div>{{end}}
+                <a href="add" class="menu-item">Créer une nouvelle catégorie</a>
             </details>
             
             <!-- Menu déroulant Gestion des users -->
             <details>
-                <summary>gestion des users</summary>
-                <a href="#" class="menu-item">all users</a>
+                <summary>Gestion des utilisateurs</summary>
+                 {{range .Users}}<img src="{{.ProfilPic}}"/><span class="menu-item">{{.Username}}</span> {{end}}
             </details>
             
             <!-- Lien simple -->
@@ -54,23 +43,11 @@
 
         <!--statistics table-->
         <div class="table-container">
-            <div class="table-title">statistics</div>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>total posts</th>
-                            <th>active users</th>
-                            <th>reported items</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                    </tbody>
-                </table>
+            <div class="table-title">Statistiques</div>
+                <div>Nombre total d'utilisateur : {{.Stats.TotalUsers}}</div>
+                <div>Dernier utilisateur enregistré : {{.Stats.LastUser}}</div>
+                <div>Nombre de sujets ouverts : {{.Stats.TotalTopics}}</div>
+                <div>Messages postés au cours du dernier mois : {{.Stats.LastMonthPost}}</div>         
         </div>
 
             <!-- Recent Posts Table -->

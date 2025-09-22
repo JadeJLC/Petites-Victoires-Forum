@@ -21,7 +21,7 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 
 	var currentUser models.UserLoggedIn
 
-	currentUser.LogStatus = checkLogStatus(r)
+	currentUser.LogStatus = CheckLogStatus(r)
 
 	if currentUser.LogStatus {
 		currentUser.Username, currentUser.ID, err = getUserNameAndID(r, db)
@@ -38,7 +38,7 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 }
 
 // Vérifie si un utilisateur est connecté
-func checkLogStatus(r *http.Request) bool {
+func CheckLogStatus(r *http.Request) bool {
 	userLoggedIn := false
 	_, err := r.Cookie("session_id")
 	if err == nil {
