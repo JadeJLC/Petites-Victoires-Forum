@@ -20,7 +20,7 @@
             <details>
                 <summary>Gestion des categories</summary>
                  {{range .Categories}}<a href="{{.ID}}" class="menu-item">{{.Name}}</a> 
-                <div>{{.Description}}</div>{{end}}
+                {{end}}
                 <a href="add" class="menu-item">Créer une nouvelle catégorie</a>
             </details>
             
@@ -56,10 +56,10 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>title</th>
-                            <th>statut</th>
-                            <th>auteur</th>
-                            <th>interaction</th>
+                            <th>Sujet</th>
+                            <th>Auteur</th>
+                            <th>Aperçu</th>
+                            <th>Interactions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -91,31 +91,18 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>nom</th>
-                            <th>description</th>
-                            <th>sujets liés</th>
-                            <th>interaction</th>
+                            <th>Nom</th>
+                            <th>Description</th>
+                            <th>Sujets</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                        {{range .Categories }}<tr>
+                            <td> <a href="/categorie/{{.ID}}" target="_blank">{{.Name}}</a></td>
+                            <td> {{.Description}} </td>
+                            <td> {{range .Topics}} <a href="/topic/{{.TopicID}}" target="_blank">{{.Name}} </a><br> {{end}} </td>
                         </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                        </tr>
+                        {{end}}
                     </tbody>
                 </table>
                 <button class="add-btn">add new categories</button>
