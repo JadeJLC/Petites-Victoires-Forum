@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"html/template"
 	"net/http"
+	"strings"
 
 	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
@@ -12,6 +13,13 @@ import (
 var loginHtml = template.Must(template.ParseFiles("templates/login.html"))
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
+	parts := strings.Split(r.URL.Path, "/")
+	url := "/" + parts[1]
+
+	if url == "/login" {
+		url = "/"
+	}
+
 	switch r.Method {
 	// si l'utilisateur demande le formulaire
 	case http.MethodGet:
@@ -76,7 +84,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 		})
 
-		http.Redirect(w, r, "/", http.StatusSeeOther)
+		http.Redirect(w, r, url, http.StatusSeeOther)
 
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
