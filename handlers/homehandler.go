@@ -14,7 +14,7 @@ import (
 )
 
 var funcMap = template.FuncMap{
-	"preview": utils.Preview,
+	"preview": getdata.Preview,
 }
 
 var HomeHtml = template.Must(template.New("home.html").Funcs(funcMap).ParseFiles(

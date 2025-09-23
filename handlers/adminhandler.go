@@ -12,10 +12,11 @@ import (
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils"
 	admin "github.com/Mathis-Pain/Forum/utils/adminfuncs"
+	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
 var funcShort = template.FuncMap{
-	"preview": utils.Preview,
+	"preview": getdata.Preview,
 }
 
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
