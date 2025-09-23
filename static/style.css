@@ -255,6 +255,7 @@ details[open] summary:before {
   color: #333;
   padding: 8px 0;
   display: block;
+  font-size: 14px;
 }
 
 /* Content area */

@@ -30,7 +30,7 @@ func GetSession(sessionID string) (models.Session, error) {
 	if err != nil {
 		if err == sql.ErrNoRows {
 			log.Print("<get-session.go> Erreur dans la récupération de session, aucune session trouvée :", err)
-			return models.Session{}, errors.New("session not found")
+			return models.Session{}, err
 		}
 		return models.Session{}, err
 	}
