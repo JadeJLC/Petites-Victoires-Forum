@@ -5,7 +5,6 @@ import (
 	"html/template"
 	"log"
 	"net/http"
-	"strconv"
 	"strings"
 
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
@@ -65,9 +64,9 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		utils.InternalServError(w)
 		return
 	}
-	if len(parts) == 2 && parts[1] == "admin" {
+	if len(parts) == 3 && parts[2] == "" {
 		adminHome(categories, topics, stats, users, w, currentUser, lastmonthpost)
-	} else if len(parts) > 2 {
+	} else {
 		switch parts[2] {
 		case "userlist":
 			adminUsers(users, r, w, currentUser, stats)
@@ -164,30 +163,39 @@ func adminUsers(users []models.User, r *http.Request, w http.ResponseWriter, cur
 	}
 
 	if r.Method == "POST" {
-		stringID := r.FormValue("userID")
-		ID, err := strconv.Atoi(stringID)
-		if err != nil {
-			log.Print("<adminhandler.go adminUsers> Erreur dans la récupération de l'ID utilisateur : ", err)
-			utils.InternalServError(w)
-			return
-		}
-
-		var userToEdit models.User
-
-		for _, current := range users {
-			if current.ID == ID {
-				userToEdit = current
-				break
+		// Si un compte utilisateur est modifié
+		if username := r.FormValue("username"); username != "" {
+			err := subhandlers.UserEditHandler(r, users)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans la modification de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("userToBan"); stringID != "" {
+			// Si on clique pour bannir un utilisateur
+			err := subhandlers.BanUserHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans le bannissement de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("userToFree"); stringID != "" {
+			// Si on clique pour bannir un utilisateur
+			err := subhandlers.UnbanUserHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans le débannissement de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("userToDelete"); stringID != "" {
+			// Si on supprime un utilisateur
+			err := subhandlers.DeleteUserHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans la suppression de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
 			}
 		}
-		err = subhandlers.UserEditHandler(r, &userToEdit)
-		if err != nil {
-			log.Print("<adminhandler.go adminUsers> Erreur dans la modification de l'utilisateur : ", err)
-			utils.InternalServError(w)
-			return
-		}
-
-		log.Print("Utilisateur modifié : ", userToEdit.Username)
 
 		http.Redirect(w, r, "/admin/userlist", http.StatusSeeOther)
 	}
