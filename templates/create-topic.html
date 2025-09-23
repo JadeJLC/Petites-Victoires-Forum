@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="fr">
+ {{template "InitPage" .}}
+  <body>
+    <!-- Header -->
+   {{template "ForumHeader" .}}
+
+    <!-- Main Content -->
+     <div class="dashboard-header">
+  <div class="topic-top">
+    <h2>{{ .Category.Name }}</h2>
+     {{if .CurrentUser.LogStatus}}<form action="/new-topic" methode="GET"><button type="sumbmit" class="respond-btn">Ouvrir un nouveau sujet</button></form> {{end}}
+  </div>
+</div>
+    <main class="main-content">
+
+    
+<form class="create-topic-form" method="POST">
+  <input type="text" class="input-name-topic" name="title" placeholder="entrer le nom du topic"/>
+ <input type="text" class="input-description-topic" name="description" placeholder="entrer la description du topic"/>
+  <div class="create-topic-form-button"><button type="submit"> Envoyer</button></div>
+</form>
+    
+    </main>
+  </body>
+</html>
+</html>
