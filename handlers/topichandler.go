@@ -47,6 +47,7 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
 		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}

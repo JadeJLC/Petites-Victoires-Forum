@@ -25,14 +25,52 @@ func GetUserInfoFromLogin(db *sql.DB, login string) (models.User, error) {
 // Récupère le nom d'utilisateur et la photo de profil d'un utilisateur à partir de son ID
 func GetUserInfoFromID(db *sql.DB, ID int) (models.User, error) {
 	// Préparation de la requête sql
-	sql := `SELECT username FROM user WHERE id = ?`
+	sql := `SELECT username, profilpic, role_id FROM user WHERE id = ?`
 	row := db.QueryRow(sql, ID)
 
 	var user models.User
-	err := row.Scan(&user.Username)
+	err := row.Scan(&user.Username, &user.ProfilPic, &user.Status)
+
+	user.Status = SetUserStatus(user.Status)
+	user.ID = ID
+
 	if err != nil {
 		return models.User{}, err
 	}
 
 	return user, nil
+}
+
+func SetUserStatus(role string) string {
+	switch role {
+	case "1":
+		role = "Admin"
+	case "2":
+		role = "Modérateur"
+	case "3":
+		role = "Membre"
+	case "4":
+		role = "Banni"
+	default:
+		role = "Membre"
+	}
+
+	return role
+}
+
+func CodeUserStatus(role string) string {
+	switch role {
+	case "Admin":
+		role = "1"
+	case "Modérateur":
+		role = "2"
+	case "Membre":
+		role = "3"
+	case "Banni":
+		role = "4"
+	default:
+		role = "3"
+	}
+
+	return role
 }

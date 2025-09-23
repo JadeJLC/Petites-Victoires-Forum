@@ -28,7 +28,7 @@
         <section class="posts-section">
             {{range .Topic.Messages}}
             <div class="post-card" id="{{.MessageID}}">
-                <div class="post-avatar">{{.Author.ProfilPic}}</div>
+                <img class="post-avatar" src="{{.Author.ProfilPic}}"/>
                 <div class="post-content">
                     <div class="post-title">{{.Author.Username}}</div>
                     <pre class="post-text">{{.Content}}</pre>
