@@ -132,7 +132,8 @@ body {
   display: none;
   position: absolute;
   list-style: none;
-  top: 12%;
+  top: 70px;
+  right: 450px;
   border-radius: 5px;
   margin: 0;
   padding: 0;
