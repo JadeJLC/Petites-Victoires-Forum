@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="fr">
+   {{template "InitPage" .}}
+<body>
+    <!-- Header -->
+   {{template "AdminHeader" .}}
+
+    <div class="main-container">
+        <!-- Sidebar -->
+       {{template "AdminSidebar" .}}
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <h1>Gérer les utilisateurs ({{.Stats.TotalUsers}})</h1>
+            </div>
+
+<input type="text" class="search-box" placeholder="search">
+
+<div class="table-container">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Nom d'utilisateur</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                          
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{range .Users}}
+                        <tr>
+                            <form method="POST" id="edituser{{.ID}}">
+                                <input type="hidden" name="userID" value="{{.ID}}">
+                            <td><span class="userfield"> {{.Username}} </span><input type="text" name="username" value="{{.Username}}" class="is-hidden user-edit"></td>
+                            <td> 
+                               <span class="userfield">{{.Status}} </span>
+                               <select name="status" class="is-hidden user-edit">
+                                    <option value="Membre {{if (eq .Status "Membre")}} selected{{end}}">Membre</option>
+                                    <option value="Modérateur" {{if (eq .Status "Modérateur")}} selected{{end}}>Modérateur</option>
+                                    <option value="Admin" {{if (eq .Status "Admin")}} selected{{end}}>Admin</option>
+                                </select>
+                            <button type="submit" title="Valider les modifications" class="validate-btn is-hidden">✅ Valider</button></td>
+                            </form>
+                            <td class="actions-column">
+                        {{if not (eq $.CurrentUser.ID .ID)}}<div class="menu">
+                            <div class="menu-options">
+                                <a title="Modifier l'utilisateur" class="modifier-btn">🔧 Modifier</a>
+                                 {{if (eq .Status "Banni")}} <form method="POST">
+                                <input type="hidden" name="userToFree" value="{{.ID}}">
+                                <button title="Débannir l'utilisateur" type="submit">⚖️ Débannir</button>
+                                    </form>
+                                 {{else}}
+                                 <form method="POST">
+                                <input type="hidden" name="userToBan" value="{{.ID}}">
+                                <button title="Bannir l'utilisateur" type="submit">⚖️ Bannir</button>
+                                    </form>
+                                    {{end}}
+                                    <!-- This is the form with the confirmation modal logic -->
+                                    <form method="POST" class="delete-form">
+                                        <input type="hidden" name="userToDelete" value="{{.ID}}">
+                                        <button title="Supprimer l'utilisateur" type="button" class="delete-btn">🚫 Supprimer</button>
+                                    </form>
+                
+                            </div>
+                        </div>
+                        {{end}}
+                    </td>
+                        </tr>
+                        {{end}}
+                    </tbody>
+                </table>
+            </div>
+            
+            <!-- START: Custom confirmation modal and styling -->
+            <style>
+                .userlist span {
+                    display:block;
+                }
+
+                .userlist a {
+                    display:none;
+                }
+                
+                .userlist summary{
+                    color:var(--color-highlight);
+                }
+            </style>
+
+            <div id="confirmationModal" class="modal is-hidden">
+                <div class="modal-content">
+                    <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.</p>
+                    <div class="modal-buttons">
+                        <button id="cancelDelete" class="modal-cancel-btn">Annuler</button>
+                        <button id="confirmDelete" class="modal-confirm-btn">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+            <!-- END: Custom confirmation modal and styling -->
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const modifierButtons = document.querySelectorAll('.modifier-btn');
+                    const validateButtons = document.querySelectorAll('.validate-btn');
+                    
+                    // START: New code for confirmation modal
+                    const modal = document.getElementById('confirmationModal');
+                    const confirmBtn = document.getElementById('confirmDelete');
+                    const cancelBtn = document.getElementById('cancelDelete');
+                    let formToSubmit = null;
+
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            formToSubmit = event.target.closest('form');
+                            modal.style.display = 'flex';
+                        });
+                    });
+
+                    confirmBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        if (formToSubmit) {
+                            formToSubmit.submit();
+                        }
+                    });
+
+                    cancelBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        formToSubmit = null;
+                    });
+
+                    window.addEventListener('click', (event) => {
+                        if (event.target === modal) {
+                            modal.style.display = 'none';
+                            formToSubmit = null;
+                        }
+                    });
+                    // END: New code for confirmation modal
+
+                    modifierButtons.forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            // event.preventDefault();
+                            const row = event.target.closest('tr');
+                            const inputFields = row.querySelectorAll('.user-edit');
+                            const validateBtn = row.querySelector('.validate-btn');
+                            const modifierBtn = row.querySelector('.modifier-btn');
+                            const userFields = row.querySelectorAll('.userfield');
+                            
+                            inputFields.forEach(input => input.classList.remove('is-hidden'));
+                            if (validateBtn) validateBtn.classList.remove('is-hidden');
+                            if (modifierBtn) modifierBtn.classList.add('is-hidden');
+                            userFields.forEach(span => span.classList.add('is-hidden'));
+                        });
+                    });
+
+                    validateButtons.forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            // event.preventDefault();
+                            const row = event.target.closest('tr');
+                            const inputFields = row.querySelectorAll('.user-edit');
+                            const validateBtn = row.querySelector('.validate-btn');
+                            const modifierBtn = row.querySelector('.modifier-btn');
+                            const userFields = row.querySelectorAll('.userfield');
+                            
+                            inputFields.forEach(input => input.classList.add('is-hidden'));
+                            if (validateBtn) validateBtn.classList.add('is-hidden');
+                            if (modifierBtn) modifierBtn.classList.remove('is-hidden');
+                            userFields.forEach(span => span.classList.remove('is-hidden'));
+                        });
+                    });
+                });
+            </script>
+        </div>
+    </div>
+</body>
+</html>

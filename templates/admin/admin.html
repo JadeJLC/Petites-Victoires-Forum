@@ -6,35 +6,7 @@
    {{template "AdminHeader" .}}
 
     <div class="main-container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <p>Gérer le forum</p>
-            
-            <!-- Menu déroulant Gestion des posts -->
-            <details>
-                <summary>Gestion des sujets</summary>
-                {{range .Topics}}<a href="{{.TopicID}}" class="menu-item" target="_blank">{{.Name}}</a> ouvert par {{(index .Messages 0).Author.Username}} {{end}}
-            </details>
-            
-            <!-- Menu déroulant Gestion des catégories -->
-            <details>
-                <summary>Gestion des categories</summary>
-                <div class="admin-list">
-                 {{range .Categories}}<a href="/categorie/{{.ID}}" class="menu-item" target="_blank">{{.Name}}</a> 
-                {{end}}
-                </div>
-                <a href="addcat" class="menu-item">Créer une nouvelle catégorie</a>
-            </details>
-            
-            <!-- Menu déroulant Gestion des users -->
-            <details>
-                <summary>Gestion des utilisateurs</summary>
-                 {{range .Users}}<img src="{{.ProfilPic}}"/><span class="menu-item">{{.Username}}</span> {{end}}
-            </details>
-            
-            <!-- Lien simple -->
-            <p class="simple-link">>paramètres</p>
-        </div>
+       {{template "AdminSidebar" .}}
 
         <!-- Content Area -->
         <div class="content-area">

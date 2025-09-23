@@ -21,7 +21,7 @@ var TopicHtml = template.Must(template.New("topic.html").ParseFiles(
 ))
 
 func TopicHandler(w http.ResponseWriter, r *http.Request) {
-	ID := utils.GetPageID(r)
+	ID := subhandlers.GetPageID(r)
 	if ID == 0 {
 		utils.NotFoundHandler(w)
 		return
@@ -46,6 +46,7 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
+		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
 		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return

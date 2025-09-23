@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"log"
 	"net/http"
@@ -12,10 +11,11 @@ import (
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils"
 	admin "github.com/Mathis-Pain/Forum/utils/adminfuncs"
+	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
 var funcShort = template.FuncMap{
-	"preview": utils.Preview,
+	"preview": getdata.Preview,
 }
 
 func AdminHandler(w http.ResponseWriter, r *http.Request) {
@@ -54,23 +54,22 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 
 	categories, topics, err := admin.GetAllTopics(categories, db)
 	if err != nil {
-		log.Print("Erreur dans la récupération des sujets", err)
+		log.Print("Erreur dans la récupération des sujets : ", err)
 		utils.InternalServError(w)
 		return
 	}
 	lastmonthpost, stats, users, err := admin.GetStats(topics)
 	if err != nil {
-		log.Print("Erreur dans la récupération des statistiques", err)
+		log.Print("Erreur dans la récupération des statistiques : ", err)
 		utils.InternalServError(w)
 		return
 	}
-	if len(parts) == 3 && parts[1] == "admin" {
+	if len(parts) == 3 && parts[2] == "" {
 		adminHome(categories, topics, stats, users, w, currentUser, lastmonthpost)
-	} else if len(parts) > 3 {
-		fmt.Println(parts[2])
-		switch parts[1] {
+	} else {
+		switch parts[2] {
 		case "userlist":
-			adminUsers(users, w)
+			adminUsers(users, r, w, currentUser, stats)
 		case "catlist":
 			adminCategories(categories, w)
 		case "topiclist":
@@ -150,16 +149,63 @@ func adminCategories(categories []models.Category, w http.ResponseWriter) {
 	}
 }
 
-func adminUsers(users []models.User, w http.ResponseWriter) {
+func adminUsers(users []models.User, r *http.Request, w http.ResponseWriter, currentUser models.UserLoggedIn, stats models.Stats) {
 	data := struct {
-		PageName string
-		Users    []models.User
+		PageName    string
+		Users       []models.User
+		CurrentUser models.UserLoggedIn
+		Stats       models.Stats
 	}{
-		PageName: "Administrer les utilisateurs",
-		Users:    users,
+		PageName:    "Administrer les utilisateurs",
+		Users:       users,
+		CurrentUser: currentUser,
+		Stats:       stats,
 	}
 
-	pageToLoad, err := template.ParseFiles("templates/all-users.html", "templates/header.html", "templates/initpage.html")
+	if r.Method == "POST" {
+		// Si un compte utilisateur est modifié
+		if username := r.FormValue("username"); username != "" {
+			err := subhandlers.UserEditHandler(r, users)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans la modification de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("userToBan"); stringID != "" {
+			// Si on clique pour bannir un utilisateur
+			err := subhandlers.BanUserHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans le bannissement de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("userToFree"); stringID != "" {
+			// Si on clique pour bannir un utilisateur
+			err := subhandlers.UnbanUserHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans le débannissement de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("userToDelete"); stringID != "" {
+			// Si on supprime un utilisateur
+			err := subhandlers.DeleteUserHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminUsers> Erreur dans la suppression de l'utilisateur : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		}
+
+		http.Redirect(w, r, "/admin/userlist", http.StatusSeeOther)
+	}
+
+	pageToLoad, err := template.ParseFiles(
+		"templates/admin/all-users.html",
+		"templates/admin/adminheader.html",
+		"templates/admin/adminsidebar.html",
+		"templates/initpage.html")
+
 	if err != nil {
 		log.Printf("<adminhandler.go> Erreur dans la génération du template adminUsers : %v", err)
 		utils.InternalServError(w)
@@ -195,19 +241,12 @@ func adminHome(categories []models.Category, topics []models.Topic, stats models
 
 	pageToLoad := template.Must(template.New("admin.html").Funcs(funcShort).ParseFiles("templates/admin/admin.html",
 		"templates/admin/adminheader.html",
-		"templates/initpage.html",
-		"templates/login.html"))
-
-	// pageToLoad, err := template.Funcs(funcShort).ParseFiles("templates/admin/admin.html", "templates/admin/adminheader.html", "templates/initpage.html", "templates/login.html")
-	// if err != nil {
-	// 	log.Printf("<adminhandler.go> Erreur dans la génération du template adminHome : %v", err)
-	// 	utils.InternalServError(w)
-	// 	return
-	// }
+		"templates/admin/adminsidebar.html",
+		"templates/initpage.html"))
 
 	err := pageToLoad.Execute(w, data)
 	if err != nil {
-		log.Printf("<adminhandler.go> Erreur dans la lecture du template adminHome : %v", err)
+		log.Print("<adminhandler.go> Erreur dans la lecture du template adminHome : ", err)
 		utils.InternalServError(w)
 		return
 	}

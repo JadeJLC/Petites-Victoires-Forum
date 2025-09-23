@@ -8,7 +8,7 @@ import (
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/middleware"
 	"github.com/Mathis-Pain/Forum/sessions"
-
+	"github.com/Mathis-Pain/Forum/test"
 	"github.com/Mathis-Pain/Forum/utils"
 )
 
@@ -27,10 +27,10 @@ func InitRoutes() *http.ServeMux {
 
 	mux.HandleFunc("/registration", handlers.SignUpSubmitHandler)
 	mux.Handle("/profil", middleware.AuthMiddleware(http.HandlerFunc(handlers.ProfilHandler)))
-	mux.HandleFunc("/login", handlers.LoginHandler)
+	mux.HandleFunc("/login", subhandlers.LoginHandler)
 	mux.HandleFunc("/categorie/", handlers.CategoriesHandler)
 	mux.HandleFunc("/topic/", handlers.TopicHandler)
-	mux.HandleFunc("/test", handlers.TestHandler)
+	mux.HandleFunc("/test", test.TestHandler)
 	mux.HandleFunc("/admin/", handlers.AdminHandler)
 	mux.HandleFunc("/new-topic", handlers.CreateTopicHandler)
 	mux.HandleFunc("/like", subhandlers.LikePostHandler)

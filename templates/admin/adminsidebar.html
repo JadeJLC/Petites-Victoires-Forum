@@ -1,0 +1,34 @@
+{{define "AdminSidebar"}}
+ <!-- Sidebar -->
+        <div class="sidebar">
+            <p>Gérer le forum</p>
+            
+            <!-- Menu déroulant Gestion des posts -->
+            <details>
+                <summary>Gestion des sujets</summary>
+                <a href="topiclist" class="menu-item catlist">Modifier les sujets</a>
+            </details>
+            
+            <!-- Menu déroulant Gestion des catégories -->
+            <details class="catlist">
+                <summary>Gestion des categories</summary>
+                <a href="catlist" class="menu-item catlist">Modifier les catégorie</a>
+                <a href="addcat" class="menu-item">Créer une nouvelle catégorie</a>
+            </details>
+            
+            <!-- Menu déroulant Gestion des users -->
+            <details class="userlist">
+                <summary>Gestion des utilisateurs</summary>
+                <div class="admin-list menu-item"> Dernier utilisateur enregistré : {{.Stats.LastUser}}
+                    </div>
+                <a href="userlist" class="menu-item">Gérer les utilisateurs</a>
+                 <span class="menu-item is-hidden" title="Page actuelle">Gérer les utilisateurs</span>
+                
+            </details>
+            
+            <!-- Lien simple -->
+            <p class="simple-link">Paramètres</p>
+        </div>
+
+
+{{end}}
