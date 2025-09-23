@@ -47,8 +47,22 @@
                         {{if not (eq $.CurrentUser.ID .ID)}}<div class="menu">
                             <div class="menu-options">
                                 <a title="Modifier l'utilisateur" class="modifier-btn">🔧 Modifier</a>
-                                <a title="Bannir l'utilisateur" href="bannuser/{{.ID}}">⚖️ Bannir</a>
-                                <a title="Supprimer l'utilisateur" href="deluser/{{.ID}}">🚫 Supprimer</a>
+                                 {{if (eq .Status "Banni")}} <form method="POST">
+                                <input type="hidden" name="userToFree" value="{{.ID}}">
+                                <button title="Débannir l'utilisateur" type="submit">⚖️ Débannir</button>
+                                    </form>
+                                 {{else}}
+                                 <form method="POST">
+                                <input type="hidden" name="userToBan" value="{{.ID}}">
+                                <button title="Bannir l'utilisateur" type="submit">⚖️ Bannir</button>
+                                    </form>
+                                    {{end}}
+                                    <!-- This is the form with the confirmation modal logic -->
+                                    <form method="POST" class="delete-form">
+                                        <input type="hidden" name="userToDelete" value="{{.ID}}">
+                                        <button title="Supprimer l'utilisateur" type="button" class="delete-btn">🚫 Supprimer</button>
+                                    </form>
+                
                             </div>
                         </div>
                         {{end}}
@@ -58,11 +72,70 @@
                     </tbody>
                 </table>
             </div>
+            
+            <!-- START: Custom confirmation modal and styling -->
+            <style>
+                .userlist span {
+                    display:block;
+                }
+
+                .userlist a {
+                    display:none;
+                }
+                
+                .userlist summary{
+                    color:var(--color-highlight);
+                }
+            </style>
+
+            <div id="confirmationModal" class="modal is-hidden">
+                <div class="modal-content">
+                    <p>Êtes-vous sûr de vouloir supprimer cet utilisateur ? Cette action est irréversible.</p>
+                    <div class="modal-buttons">
+                        <button id="cancelDelete" class="modal-cancel-btn">Annuler</button>
+                        <button id="confirmDelete" class="modal-confirm-btn">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+            <!-- END: Custom confirmation modal and styling -->
 
             <script>
                 document.addEventListener('DOMContentLoaded', () => {
                     const modifierButtons = document.querySelectorAll('.modifier-btn');
                     const validateButtons = document.querySelectorAll('.validate-btn');
+                    
+                    // START: New code for confirmation modal
+                    const modal = document.getElementById('confirmationModal');
+                    const confirmBtn = document.getElementById('confirmDelete');
+                    const cancelBtn = document.getElementById('cancelDelete');
+                    let formToSubmit = null;
+
+                    document.querySelectorAll('.delete-btn').forEach(button => {
+                        button.addEventListener('click', (event) => {
+                            formToSubmit = event.target.closest('form');
+                            modal.style.display = 'flex';
+                        });
+                    });
+
+                    confirmBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        if (formToSubmit) {
+                            formToSubmit.submit();
+                        }
+                    });
+
+                    cancelBtn.addEventListener('click', () => {
+                        modal.style.display = 'none';
+                        formToSubmit = null;
+                    });
+
+                    window.addEventListener('click', (event) => {
+                        if (event.target === modal) {
+                            modal.style.display = 'none';
+                            formToSubmit = null;
+                        }
+                    });
+                    // END: New code for confirmation modal
 
                     modifierButtons.forEach(button => {
                         button.addEventListener('click', (event) => {
@@ -97,12 +170,6 @@
                     });
                 });
             </script>
-
-            <style>
-                .is-hidden {
-                    display: none;
-                }
-            </style>
         </div>
     </div>
 </body>
