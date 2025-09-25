@@ -13,7 +13,7 @@ import (
 
 func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.Category, models.UserLoggedIn, error) {
 	categories, err := categoriesDropDownMenu()
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		log.Print("<buildheader.go> Erreur dans la récupération de la liste des catégories :", err)
 		utils.InternalServError(w)
 		return nil, models.UserLoggedIn{}, err
@@ -57,7 +57,7 @@ func getUserNameAndID(r *http.Request, db *sql.DB) (string, int, error) {
 		return "", 0, err
 	}
 	session, err := sessions.GetSession(cookie.Value)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		log.Print("<buildheader.go> Erreur dans la récupération de session : ", err)
 		return "", 0, err
 	}
@@ -68,7 +68,7 @@ func getUserNameAndID(r *http.Request, db *sql.DB) (string, int, error) {
 	var username string
 
 	err = row.Scan(&username)
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		return "", 0, err
 	}
 

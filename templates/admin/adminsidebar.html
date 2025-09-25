@@ -1,27 +1,33 @@
 {{define "AdminSidebar"}}
  <!-- Sidebar -->
         <div class="sidebar">
-            <p>Gérer le forum</p>
+            <a href="/admin" class="simple-link">Gérer le forum</a>
             
             <!-- Menu déroulant Gestion des posts -->
             <details>
                 <summary>Gestion des sujets</summary>
-                <a href="topiclist" class="menu-item catlist">Modifier les sujets</a>
+                <a href="topiclist" class="menu-item topiclist">Gérer les sujets</a>
             </details>
             
             <!-- Menu déroulant Gestion des catégories -->
             <details class="catlist">
                 <summary>Gestion des categories</summary>
-                <a href="catlist" class="menu-item catlist">Modifier les catégorie</a>
-                <a href="addcat" class="menu-item">Créer une nouvelle catégorie</a>
+
+                <div class="admin-list menu-item"> Nombre total de catégories : {{.Stats.TotalCats}}</div>
+                    <div class="admin-list menu-item"> Dernière catégorie créée : {{.Stats.LastCat}}
+                    </div>
+                <a href="catlist" class="menu-item admin-cat">> Gérer les catégorie</a>
+
+                <span class="menu-item is-hidden" title="Page actuelle">Gérer les catégories</span>
             </details>
             
             <!-- Menu déroulant Gestion des users -->
             <details class="userlist">
                 <summary>Gestion des utilisateurs</summary>
-                <div class="admin-list menu-item"> Dernier utilisateur enregistré : {{.Stats.LastUser}}
+                <div class="admin-list menu-item">Nombre total d'utilisateurs : {{.Stats.TotalUsers}}</div>
+                      <div class="admin-list menu-item">Dernier utilisateur enregistré : {{.Stats.LastUser}}
                     </div>
-                <a href="userlist" class="menu-item">Gérer les utilisateurs</a>
+                <a href="userlist" class="menu-item">> Gérer les utilisateurs</a>
                  <span class="menu-item is-hidden" title="Page actuelle">Gérer les utilisateurs</span>
                 
             </details>
