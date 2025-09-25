@@ -1,66 +1,19 @@
 <!DOCTYPE html>
 <html lang="fr">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Admin</title>
-    <link rel="stylesheet" href="forum.css">
-<style>
-     .main-container {
-            display: flex;
-            flex: 1;
-            gap: 20px;
-            padding: 20px;
-        }
-</style>
-</head>
+{{template "InitPage" .}}
 <body>
-    <!-- Header -->
-    <header class="header">
-        <div class="logo-section">
-            <div class="logo"></div>
-            <div class="title">TITLE</div>
-        </div>
-         <nav class="nav-section">
-            <a href="admin.html" class="nav-link">dashboard</a>
-        </nav>
-    </header>
+     <!-- Header -->
+   {{template "AdminHeader" .}}
 
-    <div class="main-container">
+     <div class="main-container">
         <!-- Sidebar -->
-        <div class="sidebar">
-            <p>>Dashboard</p>
-
-            
-            <!-- Menu déroulant Gestion des posts -->
-            <details>
-                <summary>gestion des posts</summary>
-                <a href="all-posts.html" class="menu-item">all posts</a>
-                <a href="add-post.html" class="menu-item">add new posts</a>
-            </details>
-            
-            <!-- Menu déroulant Gestion des catégories -->
-            <details>
-                <summary>gestion des categories</summary>
-                <a href="all-categories.html" class="menu-item">all categories</a>
-                <a href="add-category.html" class="menu-item">add categories</a>
-            </details>
-            
-            <!-- Menu déroulant Gestion des users -->
-            <details>
-                <summary>gestion des users</summary>
-                <a href="all-users.html" class="menu-item">all users</a>
-            </details>
-            
-            <!-- Lien simple -->
-            <p class="simple-link">>paramètres</p>
-        </div>
+       {{template "AdminSidebar" .}}
 
         <!-- Content Area -->
         <div class="content-area">
             <!-- Dashboard Header -->
             <div class="dashboard-header">
-                <h1>All categories</h1>
+                <h1>Gérer les catégories ({{.Stats.TotalCats}})</h1>
             </div>
 
 <input type="text" class="search-box" placeholder="search">
@@ -69,103 +22,118 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>name</th>
-                            <th>statut</th>
-                            <th></th>
+                            <th>Nom de la catégorie</th>
+                            <th>Description</th>
+                            <th>Actions</th>
                           
                         </tr>
                     </thead>
                     <tbody>
-                        <tr>
-                            <td></td>
-                            <td></td>
+                    {{ range .Categories}}   
+                     <tr>
+
+                         <form method="POST" id="editcat{{.ID}}">
+                                <input type="hidden" name="catID" value="{{.ID}}">
+                            <td><span class="userfield"> {{.Name}} </span><input type="text" name="name" value="{{.Name}}" class="is-hidden user-edit"></td>
+                            <td> 
+                               <span class="userfield">{{.Description}} </span>
+                               <textarea name="description" class="is-hidden user-edit">{{.Description}}</textarea>
+                            <button type="submit" title="Valider les modifications" class="validate-btn is-hidden">✅ Valider</button></td>
+                            </form>
+
                             <td class="actions-column">
                         <div class="menu">
-                            <button class="menu-btn">⋮</button>
                             <div class="menu-options">
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;"> Modifier</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Bannir</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Supprimer</button>
+                               <a title="Modifier la catégorie" class="modifier-btn">🔧 Modifier</a>
+                               <form method="POST" class="delete-form">
+                                        <input type="hidden" name="catToDelete" value="{{.ID}}">
+                                        <button title="Supprimer la catégorie" 
+                                        type="button" class="delete-btn" 
+                                        data-topic-count="{{len .Topics}}">🚫 Supprimer</button>
+                                </form>
                             </div>
+                            
                         </div>
                     </td>
                         </tr>
-                        <tr>
-                            <td></td>
-                            <td></td>
-                            <td class="actions-column">
-                        <div class="menu">
-                            <button class="menu-btn">⋮</button>
-                            <div class="menu-options">
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;"> Modifier</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Bannir</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Supprimer</button>
-                            </div>
-                        </div>
-                    </td>
-                         <tr>
-                            <td></td>
-                            <td></td>
-                           <td class="actions-column">
-                        <div class="menu">
-                            <button class="menu-btn">⋮</button>
-                            <div class="menu-options">
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;"> Modifier</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Bannir</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Supprimer</button>
-                            </div>
-                        </div>
-                    </td>
-        <tr>
-                            <td></td>
-                            <td></td>
-                            <td class="actions-column">
-                        <div class="menu">
-                            <button class="menu-btn">⋮</button>
-                            <div class="menu-options">
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;"> Modifier</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Bannir</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Supprimer</button>
-                            </div>
-                        </div>
-                    </td>
-        <tr>
-                            <td></td>
-                            <td></td>
-                            <td class="actions-column">
-                        <div class="menu">
-                            <button class="menu-btn">⋮</button>
-                            <div class="menu-options">
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;"> Modifier</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Bannir</button>
-                                <button style="display:block; width:100%; padding:10px; border:none; background:none; text-align:left; cursor:pointer;">Supprimer</button>
-                            </div>
-                        </div>
-                    </td>
+                        {{end}}
+                       <tr><td colspan="3"><div id="show-button" style="text-align: center;margin-top: 30px;"  class="dashboard-header">> Ajouter une catégorie</div></td></tr>
+                        <tr id="newcat" class="is-hidden">
+
+                         <form method="POST">
+                            <td><input type="text" name="newcatname" class="user-edit" placeholder="Nom de la catégorie" required></td>
+                           <td>
+                               <textarea name="newcatdesc" class="user-edit" placeholder="Description de la catégorie"></textarea></td>
+                            <td><button type="submit" title="Ajouter la nouvelle catégorie" id="add-button">✅ Ajouter</button></td>
+                            </form>
+                        </tr>
+                      
                     </tbody>
                 </table>
             </div>
 
-        <script>
-document.querySelectorAll(".menu-btn").forEach(btn=>{
-  btn.addEventListener("click", e=>{
-    e.stopPropagation(); // empêche la propagation
-    const menu = btn.closest(".menu");
 
-    // fermer les autres menus
-    document.querySelectorAll(".menu").forEach(m=>{
-      if(m !== menu) m.classList.remove("active");
+            <style>
+                .catlist span {
+                    display:block;
+                }
+
+                .catlist .admin-cat {
+                    display:none;
+                }
+                
+                .catlist summary{
+                    color:var(--color-highlight);
+                }
+            </style>
+
+            <!-- Modal de confirmation pour la suppression -->
+            <div id="confirmationModal" class="modal is-hidden">
+                <div class="modal-content">
+                    <p>Êtes-vous sûr de vouloir supprimer cette catégorie ? Cela entrainera la suppression de <span id="topicCountSpan"></span> sujets.
+                        Cette action est irréversible.
+                    </p>
+                    <div class="modal-buttons">
+                        <button id="cancelDelete" class="modal-cancel-btn">Annuler</button>
+                        <button id="confirmDelete" class="modal-confirm-btn">Confirmer</button>
+                    </div>
+                </div>
+            </div>
+
+             <script>
+                document.addEventListener('DOMContentLoaded', () => {
+        // Select all delete buttons
+            const deleteButtons = document.querySelectorAll('.delete-btn');
+
+        // Add a click event listener to each button
+            deleteButtons.forEach(button => {
+            button.addEventListener('click', (event) => {
+            const topicCount = event.target.dataset.topicCount;
+
+            if (topicCountSpan) {
+                topicCountSpan.textContent = topicCount;
+            }
+
+        });
     });
-
-    // toggle ce menu
-    menu.classList.toggle("active");
-  });
 });
 
-// clic à l'extérieur → ferme tout
-document.addEventListener("click", ()=>{
-  document.querySelectorAll(".menu").forEach(m=>m.classList.remove("active"));
-});
-</script>
+document.addEventListener('DOMContentLoaded', () => {
+        // Get the necessary elements
+        const showButton = document.getElementById('show-button');
+        const newCatRow = document.getElementById('newcat');
+        const addButton = document.getElementById('add-button');
+
+        // Function to show the new category row
+        showButton.addEventListener('click', () => {
+            newCatRow.classList.remove('is-hidden');
+        });
+
+        // Function to hide the new category row when 'Ajouter' is clicked
+        addButton.addEventListener('click', (event) => {
+            newCatRow.classList.add('is-hidden');
+        });
+    });
+            </script>
 </body>
 </html>

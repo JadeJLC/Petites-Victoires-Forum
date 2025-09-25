@@ -6,13 +6,14 @@ import (
 	"net/http"
 
 	"github.com/Mathis-Pain/Forum/models"
+	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
 func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.Category, models.UserLoggedIn, error) {
 	categories, err := categoriesDropDownMenu()
-	if err != nil {
+	if err != nil && err != sql.ErrNoRows {
 		log.Print("<buildheader.go> Erreur dans la récupération de la liste des catégories :", err)
 		utils.InternalServError(w)
 		return nil, models.UserLoggedIn{}, err
@@ -47,6 +48,32 @@ func CheckLogStatus(r *http.Request) bool {
 
 	return userLoggedIn
 
+}
+
+// Récupère le pseudo et l'ID de l'utilisateur si un utilisateur est en ligne
+func getUserNameAndID(r *http.Request, db *sql.DB) (string, int, error) {
+	cookie, err := r.Cookie("session_id")
+	if err != nil {
+		log.Print("<buildheader.go> Erreur dans la récupération du cookie : ", err)
+		return "", 0, err
+	}
+	session, err := sessions.GetSession(cookie.Value)
+	if err != nil && err != sql.ErrNoRows {
+		log.Print("<buildheader.go> Erreur dans la récupération de session : ", err)
+		return "", 0, err
+	}
+
+	sqlQuery := `SELECT username FROM user WHERE id = ?`
+	row := db.QueryRow(sqlQuery, session.UserID)
+
+	var username string
+
+	err = row.Scan(&username)
+	if err != nil && err != sql.ErrNoRows {
+		return "", 0, err
+	}
+
+	return username, session.UserID, nil
 }
 
 // Fabrique la liste des catégories pour le menu déroulant

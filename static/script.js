@@ -1,111 +1,139 @@
-/////////// Modal de connexion
-function openLoginModal() {
-        document.getElementById("loginModal").style.display = "block";
-      }
+document.addEventListener('DOMContentLoaded', () => {
 
-      function closeLoginModal() {
-        document.getElementById("loginModal").style.display = "none";
-      }
+  // A helper function to manage modals
+  function setupModal(modalId, openBtnClass, closeBtnClass, outsideClickable = true) {
+    const modal = document.getElementById(modalId);
+    if (!modal) return;
 
-      function handleRegister(event) {
-        event.preventDefault();
-        const password = document.getElementById("registerPassword").value;
-        const confirmPassword =
-          document.getElementById("confirmPassword").value;
+    const openButtons = document.querySelectorAll(openBtnClass);
+    const closeButtons = document.querySelectorAll(closeBtnClass);
+    
+    // Open the modal
+    openButtons.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault(); // Prevent default link/button behavior if needed
+        modal.style.display = 'flex';
+      });
+    });
 
-        if (password !== confirmPassword) {
-          alert("Les mots de passe ne correspondent pas");
-          return;
-        }
+    // Close the modal
+    closeButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        modal.style.display = 'none';
+      });
+    });
 
-        alert("Inscription réussie !");
-        closeLoginModal();
-      }
-
-      // Fermer le modal en cliquant à l'extérieur
-      window.onclick = function (event) {
-        const modal = document.getElementById("loginModal");
+    // Close the modal when clicking outside
+    if (outsideClickable) {
+      window.addEventListener('click', (event) => {
         if (event.target === modal) {
-          closeLoginModal();
+          modal.style.display = 'none';
         }
-      };
+      });
+    }
+  }
 
+  // --- Modal de connexion ---
+  setupModal('loginModal', '.login-btn', '.close-login'); // Assuming you have buttons with these classes
+  
+  // Handle registration form submission
+  const registerForm = document.getElementById('registerForm');
+  if (registerForm) {
+    registerForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
 
-/////////// Likes et dislikes
-function toggleLike(button) {
-            const isActive = button.classList.contains('active');
-            const countSpan = button.querySelector('span:last-child');
-            let count = parseInt(countSpan.textContent);
-            
-            if (isActive) {
-                button.classList.remove('active');
-                countSpan.textContent = count - 1;
-            } else {
-                button.classList.add('active');
-                countSpan.textContent = count + 1;
-                
-                // Retirer le dislike si actif
-                const post = button.closest('.post');
-                const dislikeBtn = post.querySelector('.action-btn:nth-child(2)');
-                if (dislikeBtn.classList.contains('active')) {
-                    dislikeBtn.classList.remove('active');
-                    const dislikeCount = dislikeBtn.querySelector('span:last-child');
-                    dislikeCount.textContent = parseInt(dislikeCount.textContent) - 1;
-                }
-            }
+      if (password !== confirmPassword) {
+        alert("Les mots de passe ne correspondent pas.");
+        return;
+      }
+
+      alert("Inscription réussie !");
+      document.getElementById('loginModal').style.display = 'none';
+    });
+  }
+
+  // --- Modal de réponse ---
+  setupModal('responseModal', '.response-btn', '.close-response'); // Assuming buttons with these classes
+  
+  // Handle response submission
+  const responseForm = document.getElementById('responseForm');
+  if (responseForm) {
+    responseForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const responseText = document.getElementById('responseText').value.trim();
+      
+      if (responseText) {
+        alert('Réponse publiée ! (Simulation)');
+        document.getElementById('responseModal').style.display = 'none';
+        document.getElementById('responseText').value = '';
+      } else {
+        alert('Veuillez saisir une réponse.');
+      }
+    });
+  }
+
+  // --- Modal de confirmation de suppression ---
+  const confirmationModal = document.getElementById('confirmationModal');
+  if (confirmationModal) {
+    let formToSubmit = null;
+    
+    // Open modal on delete button click
+    document.querySelectorAll('.delete-btn').forEach(button => {
+      button.addEventListener('click', (event) => {
+        event.preventDefault(); // Prevent default form submission
+        formToSubmit = event.target.closest('form');
+        confirmationModal.style.display = 'flex';
+      });
+    });
+    
+    // Confirm delete
+    const confirmBtn = document.getElementById('confirmDelete');
+    if (confirmBtn) {
+      confirmBtn.addEventListener('click', () => {
+        confirmationModal.style.display = 'none';
+        if (formToSubmit) {
+          formToSubmit.submit();
         }
+      });
+    }
 
-        function toggleDislike(button) {
-            const isActive = button.classList.contains('active');
-            const countSpan = button.querySelector('span:last-child');
-            let count = parseInt(countSpan.textContent);
-            
-            if (isActive) {
-                button.classList.remove('active');
-                countSpan.textContent = count - 1;
-            } else {
-                button.classList.add('active');
-                countSpan.textContent = count + 1;
-                
-                // Retirer le like si actif
-                const post = button.closest('.post');
-                const likeBtn = post.querySelector('.action-btn:first-child');
-                if (likeBtn.classList.contains('active')) {
-                    likeBtn.classList.remove('active');
-                    const likeCount = likeBtn.querySelector('span:last-child');
-                    likeCount.textContent = parseInt(likeCount.textContent) - 1;
-                }
-            }
-        }
-        
-        
+    // Cancel delete
+    const cancelBtn = document.getElementById('cancelDelete');
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        confirmationModal.style.display = 'none';
+        formToSubmit = null;
+      });
+    }
+    
+  }
 
-/////////// Modal de réponse
-function showResponseBox(button) {
-            const modal = document.getElementById('responseModal');
-            modal.style.display = 'flex';
-            document.getElementById('responseText').focus();
-        }
+  // --- Edit/Validate button functionality ---
+  document.querySelectorAll('.modifier-btn').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const row = event.target.closest('tr');
+      if (!row) return;
+      
+      // Toggle visibility of fields and buttons
+      row.querySelectorAll('.user-edit').forEach(input => input.classList.remove('is-hidden'));
+      row.querySelectorAll('.userfield').forEach(span => span.classList.add('is-hidden'));
+      row.querySelector('.validate-btn')?.classList.remove('is-hidden');
+      row.querySelector('.modifier-btn')?.classList.add('is-hidden');
+    });
+  });
 
-        function closeResponseModal() {
-            const modal = document.getElementById('responseModal');
-            modal.style.display = 'none';
-            document.getElementById('responseText').value = '';
-        }
-
-        function submitResponse() {
-            const text = document.getElementById('responseText').value.trim();
-            if (text) {
-                alert('Réponse publiée ! (Simulation)');
-                closeResponseModal();
-            } else {
-                alert('Veuillez saisir une réponse.');
-            }
-        }
-
-        // Fermer le modal en cliquant à l'extérieur
-        document.getElementById('responseModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeResponseModal();
-            }
-        });
+  document.querySelectorAll('.validate-btn').forEach(button => {
+    button.addEventListener('click', (event) => {
+      const row = event.target.closest('tr');
+      if (!row) return;
+      
+      // Toggle visibility of fields and buttons back
+      row.querySelectorAll('.user-edit').forEach(input => input.classList.add('is-hidden'));
+      row.querySelectorAll('.userfield').forEach(span => span.classList.remove('is-hidden'));
+      row.querySelector('.validate-btn')?.classList.add('is-hidden');
+      row.querySelector('.modifier-btn')?.classList.remove('is-hidden');
+    });
+  });
+});
