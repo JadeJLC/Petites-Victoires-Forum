@@ -64,6 +64,8 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		utils.InternalServError(w)
 		return
 	}
+	stats.TotalCats = len(categories)
+
 	if len(parts) == 3 && parts[2] == "" {
 		adminHome(categories, topics, stats, users, w, currentUser, lastmonthpost)
 	} else {
@@ -71,7 +73,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		case "userlist":
 			adminUsers(users, r, w, currentUser, stats)
 		case "catlist":
-			adminCategories(categories, w)
+			adminCategories(categories, r, w, currentUser, stats)
 		case "topiclist":
 			adminTopics(topics, w)
 		case "seeposts":
@@ -126,16 +128,52 @@ func adminTopics(topics []models.Topic, w http.ResponseWriter) {
 	}
 }
 
-func adminCategories(categories []models.Category, w http.ResponseWriter) {
+func adminCategories(categories []models.Category, r *http.Request, w http.ResponseWriter, currentUser models.UserLoggedIn, stats models.Stats) {
 	data := struct {
-		PageName   string
-		Categories []models.Category
+		PageName    string
+		Categories  []models.Category
+		CurrentUser models.UserLoggedIn
+		Stats       models.Stats
 	}{
-		PageName:   "Administration des catégories",
-		Categories: categories,
+		PageName:    "Administration des catégories",
+		Categories:  categories,
+		CurrentUser: currentUser,
+		Stats:       stats,
 	}
 
-	pageToLoad, err := template.ParseFiles("templates/all-categories.html", "templates/header.html", "templates/initpage.html")
+	if r.Method == "POST" {
+		// Si une catégorie est modifiée
+		categ, isModified, err := subhandlers.AdminIsCatModified(r, categories)
+		if err != nil {
+			log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
+			utils.InternalServError(w)
+			return
+		}
+
+		if isModified {
+			err := subhandlers.CatEditHandler(r, categ)
+			if err != nil {
+				log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else if stringID := r.FormValue("catToDelete"); stringID != "" {
+			// Si on clique pour supprimer une catégorie
+			err := subhandlers.DeleteCatHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminCategories> Erreur dans la suppression de la catégorie : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		}
+
+		http.Redirect(w, r, "/admin/catlist", http.StatusSeeOther)
+	}
+
+	pageToLoad, err := template.ParseFiles("templates/admin/all-categories.html",
+		"templates/admin/adminheader.html",
+		"templates/admin/adminsidebar.html",
+		"templates/initpage.html")
 	if err != nil {
 		log.Printf("<adminhandler.go> Erreur dans la génération du template adminCategories : %v", err)
 		utils.InternalServError(w)
@@ -144,6 +182,7 @@ func adminCategories(categories []models.Category, w http.ResponseWriter) {
 
 	err = pageToLoad.Execute(w, data)
 	if err != nil {
+		log.Printf("<adminhandler.go> Erreur dans le chargement du template adminCategories : %v", err)
 		utils.InternalServError(w)
 		return
 	}

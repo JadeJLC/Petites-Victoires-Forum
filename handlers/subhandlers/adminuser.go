@@ -14,7 +14,7 @@ func UserEditHandler(r *http.Request, users []models.User) error {
 	stringID := r.FormValue("userID")
 	ID, err := strconv.Atoi(stringID)
 	if err != nil {
-		log.Print("<adminhandler.go adminUsers> Erreur dans la récupération de l'ID utilisateur : ", err)
+		log.Print("<adminuser.go> Erreur dans la récupération de l'ID utilisateur : ", err)
 		return err
 	}
 
@@ -40,7 +40,7 @@ func UserEditHandler(r *http.Request, users []models.User) error {
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur à l'ouverture de la base de données :", err)
+		log.Print("<adminuser.go> Erreur à l'ouverture de la base de données :", err)
 		return err
 	}
 	defer db.Close()
@@ -65,13 +65,13 @@ func BanUserHandler(stringID string) error {
 	ID, err := strconv.Atoi(stringID)
 
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur dans la récupération de l'utilisateur à bannir")
+		log.Print("<adminuser.go> Erreur dans la récupération de l'utilisateur à bannir")
 		return err
 	}
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur à l'ouverture de la base de données :", err)
+		log.Print("<adminuser.go> Erreur à l'ouverture de la base de données :", err)
 		return err
 	}
 	defer db.Close()
@@ -96,13 +96,13 @@ func UnbanUserHandler(stringID string) error {
 	ID, err := strconv.Atoi(stringID)
 
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur dans la récupération de l'utilisateur à débannir")
+		log.Print("<adminuser.go> Erreur dans la récupération de l'utilisateur à débannir")
 		return err
 	}
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur à l'ouverture de la base de données :", err)
+		log.Print("<adminuser.go> Erreur à l'ouverture de la base de données :", err)
 		return err
 	}
 	defer db.Close()
@@ -126,13 +126,13 @@ func UnbanUserHandler(stringID string) error {
 func DeleteUserHandler(stringID string) error {
 	ID, err := strconv.Atoi(stringID)
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur dans la récupération de l'utilisateur à bannir")
+		log.Print("<adminuser.go> Erreur dans la récupération de l'utilisateur à supprimer", err)
 		return err
 	}
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Print("<admineditpages.go> Erreur à l'ouverture de la base de données :", err)
+		log.Print("<adminuser.go> Erreur à l'ouverture de la base de données :", err)
 		return err
 	}
 	defer db.Close()

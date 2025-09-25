@@ -12,6 +12,7 @@ type Stats struct {
 	LastMonthPost int
 	LastUser      string
 	TotalUsers    int
+	TotalCats     int
 	Reported      int
 }
 
