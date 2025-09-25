@@ -19,7 +19,7 @@ func GetCatList() ([]models.Category, error) {
 	defer db.Close()
 
 	// Préparer la requête
-	rows, err := db.Query("SELECT id, name FROM category")
+	rows, err := db.Query("SELECT id, name, description FROM category")
 	if err != nil {
 		return []models.Category{}, err
 	}
@@ -27,7 +27,7 @@ func GetCatList() ([]models.Category, error) {
 
 	// Parcourir les résultats
 	for rows.Next() {
-		if err := rows.Scan(&category.ID, &category.Name); err != nil {
+		if err := rows.Scan(&category.ID, &category.Name, &category.Description); err != nil {
 			return []models.Category{}, err
 		}
 		categories = append(categories, category)

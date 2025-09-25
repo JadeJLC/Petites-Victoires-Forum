@@ -29,7 +29,6 @@
       <!-- Posts Section -->
       <section class="posts-section">
         {{ range .Category.Topics }}
-        <!-- gt : html/template possede des fonctions integré (gt → greater than (>)) -->
         <div class="post-card">
           {{ if gt (len .Messages) 0 }}
           <img
@@ -47,11 +46,6 @@
             <div class="post-text">
               {{preview (index .Messages .LastPost).Content 300}}
             </div>
-          </div>
-          {{ else }}
-          <div class="post-content">
-            <a class="post-title" href="/topic/{{.TopicID}}">{{.Name}}</a>
-            <div class="post-text">Aucun message pour l’instant.</div>
           </div>
           {{ end }}
         </div>

@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
+	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils"
 	"github.com/Mathis-Pain/Forum/utils/postactions"
 )
@@ -22,6 +24,37 @@ var CreatTopicHtml = template.Must(template.New("create-topic.html").Funcs(funcM
 
 func CreateTopicHandler(w http.ResponseWriter, r *http.Request) {
 
+	db, err := sql.Open("sqlite3", "./data/forum.db")
+	if err != nil {
+		log.Printf("<cathandler.go> Could not open database : %v\n", err)
+		return
+	}
+	defer db.Close()
+
+	getcategoryID := r.URL.Query().Get("category_id")
+
+	getcatID, err := strconv.Atoi(getcategoryID)
+	if err != nil {
+		// gérer l'erreur si category_id n'est pas un nombre
+		http.Error(w, "ID de catégorie invalide", http.StatusBadRequest)
+		return
+	}
+	// on charge es categories et l'utilisateur pour construire le header
+	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
+	if err != nil {
+		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+	// on prend getcatID pour chercher la categories qui correspond dans la bdd et la donner au template
+	var currentCategory models.Category
+	for _, cat := range categories {
+		if cat.ID == getcatID {
+			currentCategory = cat
+		}
+	}
+
+	// --- Création du topic
 	if r.Method == "POST" {
 		if err := r.ParseForm(); err != nil {
 			utils.InternalServError(w)
@@ -41,22 +74,30 @@ func CreateTopicHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		db, err := sql.Open("sqlite3", "./data/forum.db")
-		if err != nil {
-			log.Printf("<cathandler.go> Could not open database : %v\n", err)
-			return
-		}
-		defer db.Close()
-
+		// --- Récupération deuserID ---
 		_, userID, _ := utils.GetUserNameAndIDByCookie(r, db)
 		postactions.CreateNewtopic(userID, catID, topicName, message)
 
 		// Redirection vers la page catégorie
-		http.Redirect(w, r, fmt.Sprintf("/topic?id=%d", catID), http.StatusSeeOther)
+		http.Redirect(w, r, fmt.Sprintf("/categorie/%d", catID), http.StatusSeeOther)
 		return
 	}
 
-	err := CreatTopicHtml.Execute(w, nil)
+	data := struct {
+		PageName    string
+		Category    models.Category
+		CurrentUser models.UserLoggedIn
+		Categories  []models.Category
+		LoginData   models.LoginData
+	}{
+		PageName:    "Forum",
+		Category:    currentCategory,
+		CurrentUser: currentUser,
+		Categories:  categories,
+		LoginData:   models.LoginData{},
+	}
+
+	err = CreatTopicHtml.Execute(w, data)
 	if err != nil {
 		log.Printf("<create-topic-handler.go> Could not execute template <create-topic.html>: %v\n", err)
 		utils.NotFoundHandler(w)
