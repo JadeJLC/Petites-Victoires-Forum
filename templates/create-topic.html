@@ -13,11 +13,15 @@
   </div>
 </div>
     <main class="main-content">
-
+     <!-- Sidebar -->
+      <aside class="sidebar">
+        <h3>{{ .Category.Name }}</h3>
+        <div>{{.Category.Description}}</div>
+      </aside>
     
 <form class="create-topic-form" method="POST">
   <input type="text" class="input-name-topic" name="title" placeholder="entrer le nom du topic"/>
- <input type="text" class="input-description-topic" name="description" placeholder="entrer la description du topic"/>
+ <input type="text" class="input-description-topic" name="message" placeholder="entrer votre message"/>
   <div class="create-topic-form-button"><button type="submit"> Envoyer</button></div>
 </form>
     

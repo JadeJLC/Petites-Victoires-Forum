@@ -9,7 +9,9 @@
      <div class="dashboard-header">
   <div class="topic-top">
     <h2>{{ .Category.Name }}</h2>
-     {{if .CurrentUser.LogStatus}}<form action="/new-topic" methode="GET"><button type="submit" class="respond-btn">Ouvrir un nouveau sujet</button></form> {{end}}
+     {{if .CurrentUser.LogStatus}}<form action="/new-topic" methode="GET">
+       <input type="hidden" name="category_id" value="{{.Category.ID}}">
+      <button type="submit" class="respond-btn">Ouvrir un nouveau sujet</button></form> {{end}}
   </div>
 </div>
     <main class="main-content">
@@ -22,8 +24,14 @@
       <!-- Posts Section -->
       <section class="posts-section">
         {{ range .Category.Topics }}
+           <!-- gt : html/template possede des fonctions integré (gt → greater than (>)) -->
         <div class="post-card">
-          <img class="post-avatar" src="{{(index .Messages 0).Author.ProfilPic}}"/>
+          {{if gt (len .Messages) 0}}
+    <img class="post-avatar" src="{{(index .Messages 0).Author.ProfilPic}}"/>
+{{else}}
+    <img class="post-avatar" src="/static/default-avatar.png"/>
+{{end}}
+     
           <div class="post-content">
             <a class="post-title" href="/topic/{{.TopicID}}">{{.Name}}</a>
             <div class="post-author">Dernier message par <a href="/user/{{(index .Messages .LastPost).Author.ID}}">{{(index .Messages .LastPost).Author.Username}}</a></div>
