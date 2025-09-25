@@ -59,11 +59,6 @@ func DeleteCatHandler(stringID string) error {
 	}
 	defer db.Close()
 
-	if ID == 1 {
-		log.Print("Tentative de suppression de Plop")
-		return nil
-	}
-
 	sqlUpdate := `DELETE FROM category WHERE id = ?`
 	stmt, err := db.Prepare(sqlUpdate)
 	if err != nil {
@@ -104,6 +99,25 @@ func DeleteCatHandler(stringID string) error {
 	}
 
 	log.Print("Catégorie et sujets liés supprimés avec succès.")
+
+	return nil
+}
+
+func AddCatHandler(r *http.Request) error {
+	name := r.FormValue("newcatname")
+	description := r.FormValue("newcatdesc")
+
+	db, err := sql.Open("sqlite3", "./data/forum.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	sqlUpdate := `INSERT INTO category (name, description) VALUES(?, ?)`
+	_, err = db.Exec(sqlUpdate, name, description)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

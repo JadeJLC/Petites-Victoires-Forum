@@ -16,7 +16,7 @@ func AdminIsCatModified(r *http.Request, categories []models.Category) (models.C
 
 	ID, err := strconv.Atoi(stringID)
 	if err != nil {
-		log.Print("<adminback.go adminUsers> Erreur dans la récupération de l'ID ce catégorie : ", err)
+		log.Print("<adminback.go> Erreur dans la récupération de l'ID ce catégorie : ", err)
 		return models.Category{}, false, err
 	}
 

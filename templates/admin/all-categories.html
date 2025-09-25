@@ -13,7 +13,7 @@
         <div class="content-area">
             <!-- Dashboard Header -->
             <div class="dashboard-header">
-                <h1>Gérer les catégores ({{.Stats.TotalCats}})</h1>
+                <h1>Gérer les catégories ({{.Stats.TotalCats}})</h1>
             </div>
 
 <input type="text" class="search-box" placeholder="search">
@@ -57,6 +57,16 @@
                     </td>
                         </tr>
                         {{end}}
+                       <tr><td colspan="3"><div id="show-button" style="text-align: center;margin-top: 30px;"  class="dashboard-header">> Ajouter une catégorie</div></td></tr>
+                        <tr id="newcat" class="is-hidden">
+
+                         <form method="POST">
+                            <td><input type="text" name="newcatname" class="user-edit" placeholder="Nom de la catégorie" required></td>
+                           <td>
+                               <textarea name="newcatdesc" class="user-edit" placeholder="Description de la catégorie"></textarea></td>
+                            <td><button type="submit" title="Ajouter la nouvelle catégorie" id="add-button">✅ Ajouter</button></td>
+                            </form>
+                        </tr>
                       
                     </tbody>
                 </table>
@@ -107,6 +117,23 @@
         });
     });
 });
+
+document.addEventListener('DOMContentLoaded', () => {
+        // Get the necessary elements
+        const showButton = document.getElementById('show-button');
+        const newCatRow = document.getElementById('newcat');
+        const addButton = document.getElementById('add-button');
+
+        // Function to show the new category row
+        showButton.addEventListener('click', () => {
+            newCatRow.classList.remove('is-hidden');
+        });
+
+        // Function to hide the new category row when 'Ajouter' is clicked
+        addButton.addEventListener('click', (event) => {
+            newCatRow.classList.add('is-hidden');
+        });
+    });
             </script>
 </body>
 </html>

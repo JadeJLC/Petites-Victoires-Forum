@@ -65,6 +65,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	stats.TotalCats = len(categories)
+	stats.LastCat = categories[0].Name
 
 	if len(parts) == 3 && parts[2] == "" {
 		adminHome(categories, topics, stats, users, w, currentUser, lastmonthpost)
@@ -142,28 +143,36 @@ func adminCategories(categories []models.Category, r *http.Request, w http.Respo
 	}
 
 	if r.Method == "POST" {
-		// Si une catégorie est modifiée
-		categ, isModified, err := subhandlers.AdminIsCatModified(r, categories)
-		if err != nil {
-			log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
-			utils.InternalServError(w)
-			return
-		}
-
-		if isModified {
-			err := subhandlers.CatEditHandler(r, categ)
-			if err != nil {
-				log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
-				utils.InternalServError(w)
-				return
-			}
-		} else if stringID := r.FormValue("catToDelete"); stringID != "" {
+		if stringID := r.FormValue("catToDelete"); stringID != "" {
 			// Si on clique pour supprimer une catégorie
 			err := subhandlers.DeleteCatHandler(stringID)
 			if err != nil {
 				log.Print("<adminhandler.go adminCategories> Erreur dans la suppression de la catégorie : ", err)
 				utils.InternalServError(w)
 				return
+			}
+		} else if newcat := r.FormValue("newcatname"); newcat != "" {
+			err := subhandlers.AddCatHandler(r)
+			if err != nil {
+				log.Print("<adminhandler.go adminCategories> Erreur dans la création de la catégorie : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		} else { // Si une catégorie est modifiée
+			categ, isModified, err := subhandlers.AdminIsCatModified(r, categories)
+			if err != nil {
+				log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
+				utils.InternalServError(w)
+				return
+			}
+
+			if isModified {
+				err := subhandlers.CatEditHandler(r, categ)
+				if err != nil {
+					log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
+					utils.InternalServError(w)
+					return
+				}
 			}
 		}
 
