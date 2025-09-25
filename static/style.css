@@ -747,7 +747,7 @@ a.post-text {
 
 
 
-.userlist span, .catlist span {
+.userlist span, .catlist span, .topiclist span {
     color:var(--color-highlight);
     margin: 10px 0px 10px 25px;
     padding-left: 15px;

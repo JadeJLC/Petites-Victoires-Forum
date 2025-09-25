@@ -32,7 +32,7 @@
                     {{ range .Categories}}   
                      <tr>
 
-                         <form method="POST" id="editcat{{.ID}}">
+                         <form method="POST">
                                 <input type="hidden" name="catID" value="{{.ID}}">
                             <td><span class="userfield"> {{.Name}} </span><input type="text" name="name" value="{{.Name}}" class="is-hidden user-edit"></td>
                             <td> 
@@ -78,7 +78,7 @@
                     display:block;
                 }
 
-                .catlist .admin-cat {
+                .catlist a {
                     display:none;
                 }
                 
