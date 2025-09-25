@@ -524,7 +524,7 @@ a.post-text {
 }
 
 /* Bouton de fermeture */
-.close-btn {
+.close-login {
   position: absolute;
   right: 15px;
   top: 15px;

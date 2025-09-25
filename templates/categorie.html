@@ -10,7 +10,7 @@
       <div class="topic-top">
         <h2>{{ .Category.Name }}</h2>
         {{if .CurrentUser.LogStatus}}
-        <form action="/new-topic" methode="GET">
+        <form action="/new-topic" method="GET">
           <input type="hidden" name="category_id" value="{{.Category.ID}}" />
           <button type="submit" class="respond-btn">
             Ouvrir un nouveau sujet
