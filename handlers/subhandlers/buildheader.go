@@ -23,6 +23,7 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 
 	currentUser.LogStatus = CheckLogStatus(r)
 
+	// Si un utilisateur est en ligne, récupère son nom pour l'afficher à droite + son ID pour le profil
 	if currentUser.LogStatus {
 		currentUser.Username, currentUser.ID, err = getUserNameAndID(r, db)
 		if err != nil {
@@ -51,6 +52,7 @@ func CheckLogStatus(r *http.Request) bool {
 
 // Récupère le pseudo et l'ID de l'utilisateur si un utilisateur est en ligne
 func getUserNameAndID(r *http.Request, db *sql.DB) (string, int, error) {
+	// Récupère l'ID de l'utilisateur via sa session
 	cookie, err := r.Cookie("session_id")
 	if err != nil {
 		log.Print("<buildheader.go> Erreur dans la récupération du cookie : ", err)
@@ -62,6 +64,7 @@ func getUserNameAndID(r *http.Request, db *sql.DB) (string, int, error) {
 		return "", 0, err
 	}
 
+	// Récupère le pseudo de l'utilisateur
 	sqlQuery := `SELECT username FROM user WHERE id = ?`
 	row := db.QueryRow(sqlQuery, session.UserID)
 
