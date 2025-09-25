@@ -137,11 +137,6 @@ func DeleteUserHandler(stringID string) error {
 	}
 	defer db.Close()
 
-	if ID == 1 {
-		log.Print("Tentative de suppression de Zoé")
-		return nil
-	}
-
 	sqlUpdate := `DELETE FROM user WHERE id = ?`
 	stmt, err := db.Prepare(sqlUpdate)
 	if err != nil {

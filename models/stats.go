@@ -9,11 +9,13 @@ type LastPost struct {
 
 type Stats struct {
 	TotalTopics   int
-	LastMonthPost int
-	LastUser      string
 	TotalUsers    int
 	TotalCats     int
 	Reported      int
+	LastMonthPost int
+	LastUser      string
+	LastCat       string
+	LastTopic     string
 }
 
 type Likes struct {
