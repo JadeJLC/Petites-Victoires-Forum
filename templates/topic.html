@@ -60,6 +60,13 @@
                     </form>
                     
                 </div>
+                {{else }}
+                <div>
+                  <span>👍</span>
+                <span>{{.Likes}}</span>
+                </div>
+                <div> <span>👎</span>
+                <span>{{.Dislikes}}</span></div>
                 {{end}}
             </div>
             {{end}}

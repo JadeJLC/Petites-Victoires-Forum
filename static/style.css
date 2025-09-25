@@ -363,6 +363,12 @@ td {
   flex: 1;
 }
 
+
+.posts-section .post-card:first-child {
+  /* border-bottom:10px solid var(--color-highlight); */
+  border-left:7px solid var(--color-highlight);
+  margin-bottom: 25px;
+}
 /**** Affichage d'un message ****/
 .post-card {
   background-color: var(--color-boxback);
