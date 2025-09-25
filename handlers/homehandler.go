@@ -51,13 +51,13 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := struct {
 		PageName    string
-		LoginData   models.LoginData
+		LoginErr    string
 		Posts       []models.LastPost
 		Categories  []models.Category
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    "Forum",
-		LoginData:   models.LoginData{},
+		LoginErr:    "",
 		Posts:       lastPosts,
 		Categories:  categories,
 		CurrentUser: currentUser,
@@ -65,15 +65,15 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// --- Si POST, on remplit LoginData ---
 
-	if r.Method == "POST" {
-		loginData, err := utils.LoginPopUp(r, w)
-		if err == nil {
-			data.LoginData = loginData
-		}
+	// if r.Method == "POST" {
+	// 	loginData, err := utils.LoginPopUp(r, w)
+	// 	if err == nil {
+	// 		data.LoginData = loginData
+	// 	}
 
-		// Connexion réussie (ouverture de session, accès aux boutons, etc, à ajouter ici)
+	// 	// Connexion réussie (ouverture de session, accès aux boutons, etc, à ajouter ici)
 
-	}
+	// }
 
 	// --- Sinon : Renvoi des données de base au template ---
 	err = HomeHtml.Execute(w, data)

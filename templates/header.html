@@ -20,24 +20,19 @@
           Connecté en tant que {{.CurrentUser.Username}}
         </button>
         {{else}}
-        {{if .CurrentUser.LogStatus}} <button class="login-btn">
-          Connecté en tant que {{.CurrentUser.Username}}
-        </button>
-        {{else}}
         <button class="login-btn" onclick="openLoginModal()">
           Connexion/Inscription
         </button>
-        {{end}}
         {{end}}
       </nav>
     </header>
 
      <!-- Modal de connexion -->
     <div id="loginModal" class="modal">
-      {{template "loginModal" .LoginData.Message}}
+      {{template "loginModal" .LoginErr}}
     </div>
 
-      {{if .LoginData.ShowLogin}}
+      {{if  .LoginErr}}
     <script>
        document.getElementById("loginModal").style.display = "block";
     </script>

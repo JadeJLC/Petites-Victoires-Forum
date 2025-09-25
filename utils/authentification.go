@@ -13,12 +13,17 @@ import (
 
 // Fonction de connection
 func Authentification(db *sql.DB, username string, password string) (models.User, error) {
+	if username == "" || password == "" {
+		mylog := fmt.Errorf("tous les champs sont requis")
+		log.Println("ERROR <authentification.go>:", mylog)
+		return models.User{}, mylog
+	}
 	// Récupère l'ID et le mot de passe (crypté) à partir de l'identifiant
 	user, err := getdata.GetUserInfoFromLogin(db, username)
 	if errors.Is(err, sql.ErrNoRows) {
 		// Si aucun utilisateur n'est trouvé avec cet identifiant (mail ou pseudo), renvoie une erreur
 		log.Printf("<authentification.go> : login failed, User %v not found\n", username)
-		return models.User{}, fmt.Errorf("incorrect password or username")
+		return models.User{}, fmt.Errorf("nom d'utilisateur incorrect")
 	} else if err != nil {
 		// Erreur dans la base de données
 		mylog := fmt.Errorf("(db) could not recover user infos from the database %v", err)
@@ -30,7 +35,7 @@ func Authentification(db *sql.DB, username string, password string) (models.User
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
 	if err != nil {
 		log.Println("<authentification.go> : password does not match")
-		return models.User{}, fmt.Errorf("incorrect password or username")
+		return models.User{}, fmt.Errorf("mot de passe incorrect")
 	}
 
 	return user, err

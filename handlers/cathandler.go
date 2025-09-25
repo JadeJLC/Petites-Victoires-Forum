@@ -54,27 +54,27 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 		PageName    string
 		Category    models.Category
 		Categories  []models.Category
-		LoginData   models.LoginData
+		LoginErr    string
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    category.Name,
 		Category:    category,
 		Categories:  categories,
-		LoginData:   models.LoginData{},
+		LoginErr:    "",
 		CurrentUser: currentUser,
 	}
 
 	// --- Si POST, on remplit LoginData ---
 
-	if r.Method == "POST" {
-		loginData, err := utils.LoginPopUp(r, w)
-		if err == nil {
-			data.LoginData = loginData
-		}
+	// if r.Method == "POST" {
+	// 	loginData, err := utils.LoginPopUp(r, w)
+	// 	if err == nil {
+	// 		data.LoginData = loginData
+	// 	}
 
-		// Connexion réussie (ouverture de session, accès aux boutons, etc, à ajouter ici)
+	// 	// Connexion réussie (ouverture de session, accès aux boutons, etc, à ajouter ici)
 
-	}
+	// }
 
 	err = CatHtml.Execute(w, data)
 	if err != nil {

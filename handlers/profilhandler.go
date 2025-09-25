@@ -57,14 +57,14 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 		PageName    string
 		User        models.User
 		Posts       []models.LastPost
-		LoginData   models.LoginData
+		LoginErr    string
 		Categories  []models.Category
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    pageName,
 		User:        user,
 		Posts:       userPosts,
-		LoginData:   models.LoginData{},
+		LoginErr:    "",
 		Categories:  categories,
 		CurrentUser: currentUser,
 	}
