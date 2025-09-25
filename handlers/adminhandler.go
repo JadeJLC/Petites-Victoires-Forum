@@ -67,6 +67,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 	stats.TotalCats = len(categories)
 	stats.LastCat = categories[0].Name
 
+
 	if len(parts) == 3 && parts[2] == "" {
 		adminHome(categories, topics, stats, users, w, currentUser, lastmonthpost)
 	} else {
