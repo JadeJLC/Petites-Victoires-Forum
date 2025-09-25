@@ -76,20 +76,24 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		case "catlist":
 			adminCategories(categories, r, w, currentUser, stats)
 		case "topiclist":
-			adminTopics(topics, w)
+			adminTopics(topics, categories, r, w, currentUser, stats)
 		case "seeposts":
-			adminPost(lastmonthpost, w)
+			adminPost(lastmonthpost, r, w, currentUser, stats)
 		}
 	}
 }
 
-func adminPost(lastmonthpost []models.LastPost, w http.ResponseWriter) {
+func adminPost(lastmonthpost []models.LastPost, r *http.Request, w http.ResponseWriter, currentUser models.UserLoggedIn, stats models.Stats) {
 	data := struct {
-		PageName  string
-		LastMonth []models.LastPost
+		PageName    string
+		LastMonth   []models.LastPost
+		CurrentUser models.UserLoggedIn
+		Stats       models.Stats
 	}{
-		PageName:  "Messages du dernier mois",
-		LastMonth: lastmonthpost,
+		PageName:    "Messages du dernier mois",
+		LastMonth:   lastmonthpost,
+		CurrentUser: currentUser,
+		Stats:       stats,
 	}
 
 	pageToLoad, err := template.ParseFiles("templates/all-posts.html", "templates/header.html", "templates/initpage.html")
@@ -106,24 +110,56 @@ func adminPost(lastmonthpost []models.LastPost, w http.ResponseWriter) {
 	}
 }
 
-func adminTopics(topics []models.Topic, w http.ResponseWriter) {
+func adminTopics(topics []models.Topic, categories []models.Category, r *http.Request, w http.ResponseWriter, currentUser models.UserLoggedIn, stats models.Stats) {
 	data := struct {
-		PageName string
-		Topics   []models.Topic
+		PageName    string
+		Topics      []models.Topic
+		Categories  []models.Category
+		CurrentUser models.UserLoggedIn
+		Stats       models.Stats
 	}{
-		PageName: "Administration des sujets",
-		Topics:   topics,
+		PageName:    "Administration des sujets",
+		Topics:      topics,
+		Categories:  categories,
+		CurrentUser: currentUser,
+		Stats:       stats,
 	}
 
-	pageToLoad, err := template.ParseFiles("templates/all-topics.html", "templates/header.html", "templates/initpage.html")
+	if r.Method == "POST" {
+		if name := r.FormValue("topicname"); name != "" {
+			err := subhandlers.EditTopicHandler(r, topics)
+			if err != nil {
+				log.Print("<adminhandler.go adminTopics> Erreur dans la modification du sujet : ", err)
+				utils.InternalServError(w)
+				return
+			}
+
+		} else if stringID := r.FormValue("topicToDelete"); stringID != "" {
+			// Si on clique pour supprimer une catégorie
+			err := subhandlers.DeleteTopicHandler(stringID)
+			if err != nil {
+				log.Print("<adminhandler.go adminTopics> Erreur dans la suppression du sujet : ", err)
+				utils.InternalServError(w)
+				return
+			}
+		}
+
+		http.Redirect(w, r, "/admin/topiclist", http.StatusSeeOther)
+	}
+
+	pageToLoad, err := template.ParseFiles("templates/admin/all-topics.html",
+		"templates/admin/adminheader.html",
+		"templates/admin/adminsidebar.html",
+		"templates/initpage.html")
 	if err != nil {
-		log.Printf("<adminhandler.go> Erreur dans la génération du template adminCategories : %v", err)
+		log.Printf("<adminhandler.go> Erreur dans la génération du template adminTopics : %v", err)
 		utils.InternalServError(w)
 		return
 	}
 
 	err = pageToLoad.Execute(w, data)
 	if err != nil {
+		log.Print("Erreur à l'ouverture de la page adminTopic :", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -167,7 +203,7 @@ func adminCategories(categories []models.Category, r *http.Request, w http.Respo
 			}
 
 			if isModified {
-				err := subhandlers.CatEditHandler(r, categ)
+				err := subhandlers.EditCatHandler(r, categ)
 				if err != nil {
 					log.Print("<adminhandler.go adminCategories> Erreur dans la modification de la catégorie : ", err)
 					utils.InternalServError(w)

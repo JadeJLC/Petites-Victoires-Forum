@@ -2,6 +2,7 @@ package subhandlers
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 	"strconv"
@@ -10,7 +11,7 @@ import (
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
-func CatEditHandler(r *http.Request, categ models.Category) error {
+func EditCatHandler(r *http.Request, categ models.Category) error {
 	name := r.FormValue("name")
 	description := r.FormValue("description")
 	if name != "" {
@@ -118,6 +119,96 @@ func AddCatHandler(r *http.Request) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func EditTopicHandler(r *http.Request, topics []models.Topic) error {
+	name := r.FormValue("topicname")
+	topicID := r.FormValue("topicID")
+	stringID := r.FormValue("catID")
+
+	ID, err := strconv.Atoi(topicID)
+	if err != nil {
+		return nil
+	}
+
+	catID, err := strconv.Atoi(stringID)
+	if err != nil {
+		return nil
+	}
+
+	var topic models.Topic
+	for _, current := range topics {
+		if current.TopicID == ID {
+			topic = current
+			break
+		}
+	}
+
+	if name != "" {
+		topic.Name = name
+	}
+
+	db, err := sql.Open("sqlite3", "./data/forum.db")
+	if err != nil {
+		log.Print("<admincatsandtopics.go> Erreur à l'ouverture de la base de données :", err)
+		return err
+	}
+	defer db.Close()
+
+	sqlUpdate := `UPDATE topic SET name = ?, category_id = ? WHERE id = ?`
+	stmt, err := db.Prepare(sqlUpdate)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+	defer stmt.Close()
+
+	_, err = stmt.Exec(topic.Name, catID, ID)
+	if err != nil {
+		log.Print(err)
+		return err
+	}
+
+	return nil
+}
+
+func DeleteTopicHandler(stringID string) error {
+	ID, err := strconv.Atoi(stringID)
+	if err != nil {
+		log.Print("<admincatsandtopics.go> Erreur dans la récupération du sujet à supprimer", err)
+		return err
+	}
+
+	fmt.Println(ID)
+
+	db, err := sql.Open("sqlite3", "./data/forum.db")
+	if err != nil {
+		log.Print("<admincatsandtopics.go> Erreur à l'ouverture de la base de données :", err)
+		return err
+	}
+	defer db.Close()
+
+	sqlUpdate := `DELETE FROM topic WHERE id = ?`
+	stmt, err := db.Prepare(sqlUpdate)
+	if err != nil {
+		log.Print("<admincatsandtopics.go> Erreur dans la suppression du sujet", err)
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(ID)
+	if err != nil {
+		return err
+	}
+
+	err = AdminDeleteMessages(db, ID)
+	if err != nil {
+		log.Print("<admincatsandtopics.go> Erreur dans la suppression des messagesS", err)
+		return err
+	}
+
+	log.Print("Sujets et messages supprimés avec succès.")
 
 	return nil
 }
