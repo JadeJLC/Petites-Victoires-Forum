@@ -2,8 +2,8 @@ package subhandlers
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
 
@@ -29,25 +29,14 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	switch r.Method {
-	// si l'utilisateur demande le formulaire
-	// case http.MethodGet:
-	// 	if err := .Execute(w, nil); err != nil {
-	// 		utils.InternalServError(w)
-	// 		return
-	// 	}
-	// Si l'utilisateur envoi le formulaire
 	case http.MethodPost:
 		if err := r.ParseForm(); err != nil {
 			utils.InternalServError(w)
 			return
 		}
-		// Verification username et password non nul
+		// Récupération des données
 		username := r.FormValue("username")
 		password := r.FormValue("password")
-		// if username == "" || password == "" {
-		// 	http.Error(w, "Tous les champs sont requis", http.StatusBadRequest)
-		// 	return
-		// }
 
 		// Vérifie login + mot de passe (utils.Authentification s’occupe de la DB)
 		db, err := sql.Open("sqlite3", "./data/forum.db")
@@ -57,25 +46,44 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		defer db.Close()
 
-		user, err := utils.Authentification(db, username, password)
-		if err != nil {
-			if strings.Contains(err.Error(), "db") {
+		user, loginErr := utils.Authentification(db, username, password)
+		if loginErr != nil {
+			if strings.Contains(loginErr.Error(), "db") {
 				// En cas d'erreur dans la base de données
 				utils.InternalServError(w)
 			} else {
 				// En cas d'erreur qui ne vient pas de la base de données
-				data := struct {
-					LoginErr string
-				}{
-					LoginErr: err.Error(),
-				}
-
-				err = HomeHtml.Execute(w, data)
+				// Création d'une session temporaire et anonyme
+				session, err := sessions.CreateSession(0)
 				if err != nil {
-					log.Printf("<loginhandler.go> Could not execute template <home.html> : %v\n", err)
 					utils.InternalServError(w)
 					return
 				}
+				// Stockage du message d'erreur dans la session
+				session.Data["LoginErr"] = loginErr.Error()
+
+				// Update de la session
+				if err := sessions.SaveSessionToDB(session); err != nil {
+					utils.InternalServError(w)
+					return
+				}
+				// Pose du cookie
+				http.SetCookie(w, &http.Cookie{
+					Name:     "session_id",
+					Value:    session.ID,
+					Expires:  session.ExpiresAt,
+					HttpOnly: true,
+					Secure:   false, // false en local, true si HTTPS
+					Path:     "/",
+				})
+				// Redirection vers la page d'origine
+				referer := r.Header.Get("Referer")
+				if referer == "" {
+					referer = "/"
+				}
+				fmt.Println(referer)
+				http.Redirect(w, r, referer, http.StatusSeeOther)
+				return
 			}
 		}
 
@@ -110,7 +118,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		})
 
 		http.Redirect(w, r, url, http.StatusSeeOther)
-
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
