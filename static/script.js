@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // --- Modal de réponse ---
-  setupModal("responseModal", ".response-btn", ".close-response"); // Assuming buttons with these classes
+  setupModal("responseModal", ".response-btn", ".close-btn"); // Assuming buttons with these classes
 
   // Handle response submission
   const responseForm = document.getElementById("responseForm");
