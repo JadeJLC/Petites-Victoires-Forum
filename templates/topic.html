@@ -35,7 +35,7 @@
                     <div class="post-title">{{.Author.Username}}</div>
                     <pre class="post-text">
 {{.Content}}</pre>
-                <div class="actions-column">
+                <div class="post-actions">
                             <form method="POST" action="/messageactions">
                                 <input type="hidden" name="postID" value="{{.MessageID}}">
                                 <input type="hidden" name="topicID" value="{{$.Topic.TopicID}}">
@@ -56,7 +56,7 @@
             {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID .Author.ID)}}    
                 {{if eq .Warning 1}} <span style="cursor:default" title="Ce message a été signalé comme potentiellement problématique">‼️</span>  {{end}}
             {{end}}
-                {{if $.CurrentUser.LogStatus}}<div class="post-actions">
+                {{if $.CurrentUser.LogStatus}}<div class="action-column">
                    <form method="POST" action="/like" class="like-form">
             <input type="hidden" name="postID" value="{{.MessageID}}">
             <button type="submit" class="action-btn">

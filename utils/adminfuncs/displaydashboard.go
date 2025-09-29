@@ -88,6 +88,8 @@ func GetStats(topics []models.Topic) ([]models.LastPost, models.Stats, []models.
 			index = 0
 		}
 		stats.LastTopic = topics[index].Name
+	} else {
+		stats.LastTopic = "Aucun sujet ouvert sur le forum"
 	}
 	stats.TotalTopics = len(topics)
 

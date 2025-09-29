@@ -812,7 +812,7 @@ a.post-text {
   border-left: 7px solid rgb(212, 99, 79) !important;
 }
 
-.actions-column {
+.post-actions {
   display: flex;
   position: absolute;
   right: 10px;
