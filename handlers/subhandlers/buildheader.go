@@ -49,11 +49,14 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 // Vérifie si un utilisateur est connecté
 func CheckLogStatus(r *http.Request) bool {
 	userLoggedIn := false
-	_, err := r.Cookie("session_id")
-	if err == nil {
+	session, err := sessions.GetSessionFromRequest(r)
+	if err != nil {
+		log.Printf("<buildheader.go> Could not execute GetSessionFromRequest: %v", err)
+		return false
+	}
+	if session.UserID != 0 {
 		userLoggedIn = true
 	}
-
 	return userLoggedIn
 
 }
