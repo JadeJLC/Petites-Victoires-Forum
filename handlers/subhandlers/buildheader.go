@@ -13,7 +13,7 @@ import (
 )
 
 func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.Category, models.UserLoggedIn, error) {
-	categories, err := categoriesDropDownMenu()
+	categories, err := CategoriesDropDownMenu()
 	if err != nil && err != sql.ErrNoRows {
 		log.Print("<buildheader.go> Erreur dans la récupération de la liste des catégories :", err)
 		utils.InternalServError(w)
@@ -26,7 +26,8 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 
 	// Si un utilisateur est en ligne, récupère son nom pour l'afficher à droite + son ID pour le profil
 	if currentUser.LogStatus {
-		currentUser.Username, currentUser.ID, err = getUserNameAndID(r, db)
+		// Récupère le pseudo et l'ID de l'utilisateur si un utilisateur est en ligne
+		currentUser.Username, currentUser.ID, err = utils.GetUserNameAndIDByCookie(r, db)
 		if err != nil {
 			log.Print("<buildheader.go> Erreur dans la récupération des données utilisateur :", err)
 			utils.InternalServError(w)
@@ -86,7 +87,7 @@ func getUserNameAndID(r *http.Request, db *sql.DB) (string, int, error) {
 }
 
 // Fabrique la liste des catégories pour le menu déroulant
-func categoriesDropDownMenu() ([]models.Category, error) {
+func CategoriesDropDownMenu() ([]models.Category, error) {
 	categories, err := getdata.GetCatList()
 	if err != nil {
 		return []models.Category{}, err

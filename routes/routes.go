@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/Mathis-Pain/Forum/handlers"
+	"github.com/Mathis-Pain/Forum/handlers/authhandlers"
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/middleware"
 	"github.com/Mathis-Pain/Forum/sessions"
@@ -28,17 +29,18 @@ func InitRoutes() *http.ServeMux {
 		handlers.HomeHandler(w, r)
 	})
 
-	mux.HandleFunc("/registration", handlers.SignUpSubmitHandler)
+	mux.HandleFunc("/registration", authhandlers.SignUpSubmitHandler)
 	mux.Handle("/profil", middleware.AuthMiddleware(http.HandlerFunc(handlers.ProfilHandler)))
-	mux.HandleFunc("/login", subhandlers.LoginHandler)
+	mux.HandleFunc("/login", authhandlers.LoginHandler)
 	mux.HandleFunc("/categorie/", handlers.CategoriesHandler)
-	mux.HandleFunc("/topic/", handlers.TopicHandler)
 	mux.HandleFunc("/test", test.TestHandler)
 	mux.HandleFunc("/admin/", handlers.AdminHandler)
-
+	mux.HandleFunc("/topic/", handlers.TopicHandler)
+	mux.HandleFunc("/new-topic", handlers.CreateTopicHandler)
 	mux.HandleFunc("/like", subhandlers.LikePostHandler)
 	mux.HandleFunc("/dislike", subhandlers.DislikePostHandler)
 	mux.HandleFunc("/messageactions", subhandlers.MessageActionsHandler)
+	mux.HandleFunc("/logout", authhandlers.LogOutHandler)
 
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
