@@ -57,7 +57,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, err := sessions.GetSessionFromRequest(r)
 	if err != nil {
-		log.Printf("<homehandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		log.Printf("<cathandler.go> Could not execute GetSessionFromRequest: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -65,7 +65,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	if session.ID != "" {
 		loginErr, err = getdata.GetLoginErr(session)
 		if err != nil {
-			log.Printf("<homehandler.go> Could not execute GetLoginErr: %v\n", err)
+			log.Printf("<cathandler.go> Could not execute GetLoginErr: %v\n", err)
 		}
 	}
 

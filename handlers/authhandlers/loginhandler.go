@@ -21,12 +21,11 @@ var HomeHtml = template.Must(template.New("home.html").Funcs(funcMap).ParseFiles
 ))
 
 func LoginHandler(w http.ResponseWriter, r *http.Request) {
-	parts := strings.Split(r.URL.Path, "/")
-	url := "/" + parts[1]
-
-	if url == "/login" {
-		url = "/"
+	referer := r.Header.Get("Referer")
+	if referer == "" {
+		referer = "/"
 	}
+	fmt.Println(referer)
 
 	switch r.Method {
 	case http.MethodPost:
@@ -77,11 +76,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 					Path:     "/",
 				})
 				// Redirection vers la page d'origine
-				referer := r.Header.Get("Referer")
-				if referer == "" {
-					referer = "/"
-				}
-				fmt.Println(referer)
 				http.Redirect(w, r, referer, http.StatusSeeOther)
 				return
 			}
@@ -117,7 +111,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			Path:     "/",
 		})
 
-		http.Redirect(w, r, url, http.StatusSeeOther)
+		http.Redirect(w, r, referer, http.StatusSeeOther)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
