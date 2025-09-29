@@ -60,6 +60,13 @@
                     </form>
                     
                 </div>
+                {{else }}
+                <div>
+                  <span>👍</span>
+                <span>{{.Likes}}</span>
+                </div>
+                <div> <span>👎</span>
+                <span>{{.Dislikes}}</span></div>
                 {{end}}
             </div>
             {{end}}
@@ -71,6 +78,12 @@
     <!-- Modal de réponse -->
    {{template "ReponseBox"}}
 
+
+   <style>.posts-section .post-card:first-child {
+  /* border-bottom:10px solid var(--color-highlight); */
+  border-left:7px solid var(--color-highlight);
+  margin-bottom: 25px;
+}</style>
      
 
     <script>       

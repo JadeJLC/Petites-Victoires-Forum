@@ -2,6 +2,7 @@ package getdata
 
 import (
 	"database/sql"
+	"log"
 
 	"github.com/Mathis-Pain/Forum/models"
 )
@@ -50,6 +51,24 @@ func GetCatDetails(db *sql.DB, catID int) (models.Category, error) {
 
 	// Appelle la fonction pour récupérer la liste des sujets
 	categ.Topics, err = GetTopicList(db, catID)
+
+	for _, topic := range categ.Topics {
+		if len(topic.Messages) == 0 {
+			sqlUpdate := `DELETE FROM topic WHERE id = ?`
+			stmt, err := db.Prepare(sqlUpdate)
+			if err != nil {
+				log.Print("<admincatsandtopics.go> Erreur dans la suppression du sujet", err)
+				return categ, err
+			}
+			defer stmt.Close()
+			_, err = stmt.Exec(topic.TopicID)
+			if err != nil {
+				return categ, err
+			}
+		}
+
+	}
+
 	if err != nil {
 		return models.Category{}, err
 	}
