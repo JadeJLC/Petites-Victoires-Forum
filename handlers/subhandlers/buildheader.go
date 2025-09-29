@@ -8,6 +8,7 @@ import (
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
+	admin "github.com/Mathis-Pain/Forum/utils/adminfuncs"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
@@ -26,6 +27,12 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 	// Si un utilisateur est en ligne, récupère son nom pour l'afficher à droite + son ID pour le profil
 	if currentUser.LogStatus {
 		currentUser.Username, currentUser.ID, err = getUserNameAndID(r, db)
+		if err != nil {
+			log.Print("<buildheader.go> Erreur dans la récupération des données utilisateur :", err)
+			utils.InternalServError(w)
+			return categories, currentUser, err
+		}
+		currentUser.IsAdmin, err = admin.CheckIfAdmin(currentUser.Username)
 		if err != nil {
 			log.Print("<buildheader.go> Erreur dans la récupération des données utilisateur :", err)
 			utils.InternalServError(w)
