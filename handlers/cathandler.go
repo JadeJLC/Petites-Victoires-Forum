@@ -8,6 +8,7 @@ import (
 
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/models"
+	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
@@ -33,6 +34,8 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer db.Close()
 
+	// --- Récupération des catégories ---
+
 	category, err := getdata.GetCatDetails(db, ID)
 	if err == sql.ErrNoRows {
 		utils.NotFoundHandler(w)
@@ -50,30 +53,36 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// --- Gestion des erreurs de login ---
+
+	session, err := sessions.GetSessionFromRequest(r)
+	if err != nil {
+		log.Printf("<cathandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+	var loginErr string
+	if session.ID != "" {
+		loginErr, err = getdata.GetLoginErr(session)
+		if err != nil {
+			log.Printf("<cathandler.go> Could not execute GetLoginErr: %v\n", err)
+		}
+	}
+
+	// --- Renvoi des données ---
+
 	data := struct {
 		PageName    string
 		Category    models.Category
 		Categories  []models.Category
-		LoginData   models.LoginData
+		LoginErr    string
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    category.Name,
 		Category:    category,
 		Categories:  categories,
-		LoginData:   models.LoginData{},
+		LoginErr:    loginErr,
 		CurrentUser: currentUser,
-	}
-
-	// --- Si POST, on remplit LoginData ---
-
-	if r.Method == "POST" {
-		loginData, err := utils.LoginPopUp(r, w)
-		if err == nil {
-			data.LoginData = loginData
-		}
-
-		// Connexion réussie (ouverture de session, accès aux boutons, etc, à ajouter ici)
-
 	}
 
 	err = CatHtml.Execute(w, data)

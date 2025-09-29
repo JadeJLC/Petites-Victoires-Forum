@@ -30,7 +30,11 @@
           </ul>
         </li>
         {{else}}
+<<<<<<< HEAD
+        <button class="login-btn" onclick="openLoginModal()">
+=======
         <button class="login-btn log-me-in">
+>>>>>>> 2c3576d13c2d340d98cf41ab66fa496b29dcade1
           Connexion/Inscription
         </button>
         {{end}}
@@ -39,10 +43,10 @@
 
      <!-- Modal de connexion -->
     <div id="loginModal" class="modal">
-      {{template "loginModal" .LoginData.Message}}
+      {{template "loginModal" .LoginErr}}
     </div>
 
-      {{if .LoginData.ShowLogin}}
+      {{if  .LoginErr}}
     <script>
        document.getElementById("loginModal").style.display = "block";
     </script>
