@@ -14,5 +14,5 @@ type UserLoggedIn struct {
 	ID        int
 	Username  string
 	LogStatus bool
-	IsAdmin   bool
+	UserType  int
 }

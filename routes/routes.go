@@ -18,6 +18,9 @@ func InitRoutes() *http.ServeMux {
 
 	// Route Home
 	mux.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/home" {
+			http.Redirect(w, r, "/", http.StatusSeeOther)
+		}
 		if r.URL.Path != "/" {
 			utils.NotFoundHandler(w)
 			return
@@ -35,6 +38,7 @@ func InitRoutes() *http.ServeMux {
 
 	mux.HandleFunc("/like", subhandlers.LikePostHandler)
 	mux.HandleFunc("/dislike", subhandlers.DislikePostHandler)
+	mux.HandleFunc("/messageactions", subhandlers.MessageActionsHandler)
 
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))

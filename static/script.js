@@ -40,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
   const registerForm = document.getElementById('registerForm');
   if (registerForm) {
     registerForm.addEventListener('submit', (e) => {
-      e.preventDefault();
       const password = document.getElementById('registerPassword').value;
       const confirmPassword = document.getElementById('confirmPassword').value;
 

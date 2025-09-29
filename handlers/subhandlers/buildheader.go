@@ -32,7 +32,7 @@ func BuildHeader(r *http.Request, w http.ResponseWriter, db *sql.DB) ([]models.C
 			utils.InternalServError(w)
 			return categories, currentUser, err
 		}
-		currentUser.IsAdmin, err = admin.CheckIfAdmin(currentUser.Username)
+		currentUser.UserType, err = admin.GetUserType(currentUser.Username)
 		if err != nil {
 			log.Print("<buildheader.go> Erreur dans la récupération des données utilisateur :", err)
 			utils.InternalServError(w)

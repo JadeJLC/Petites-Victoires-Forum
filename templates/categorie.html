@@ -34,7 +34,7 @@
                
                 </div>
                 <a class="post-text" href="/topic/{{.TopicID}}#{{(index .Messages .LastPost).MessageID}}">
-                  {{preview (index .Messages .LastPost).Content 300}}
+{{preview (index .Messages .LastPost).Content 300}}
                 </a>
               </div>
             {{ else }}
