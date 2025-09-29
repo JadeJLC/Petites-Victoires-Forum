@@ -22,10 +22,9 @@
           Connecté en tant que {{.CurrentUser.Username}}
         </button>
           <ul class="dropdown-menu">
-            <li><form action="/logout" method="POST">
-  <button type="submit">Se déconnecter</button>
-</form>
-            {{if .CurrentUser.IsAdmin}}<a href="/admin">Panneau d'administration</a>{{end}}
+            <li><a href="/logout">Se déconnecter</a>
+          {{if eq .CurrentUser.UserType 1}}<a href="/admin">Panneau d'administration</a>{{end}}
+
           </li>
           </ul>
         </li>
