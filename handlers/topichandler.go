@@ -36,6 +36,7 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 	defer db.Close()
 
 	topic, err := getdata.GetTopicInfo(db, ID)
+
 	if err == sql.ErrNoRows {
 		utils.NotFoundHandler(w)
 		return
@@ -44,6 +45,8 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 		utils.InternalServError(w)
 		return
 	}
+
+	topic.TopicID = ID
 
 	// Supprime le sujet et redirige vers la page d'accueil s'il ne contient aucun message (sécurité anti bug de la BDD)
 	if len(topic.Messages) == 0 {
