@@ -34,7 +34,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // --- Modal de connexion ---
-  setupModal('loginModal', '.login-btn', '.close-login'); // Assuming you have buttons with these classes
+  setupModal('loginModal', '.log-me-in', '.close-btn'); // Assuming you have buttons with these classes
   
   // Handle registration form submission
   const registerForm = document.getElementById('registerForm');

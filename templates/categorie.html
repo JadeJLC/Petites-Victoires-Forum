@@ -29,13 +29,13 @@
                 <a class="post-title" href="/topic/{{.TopicID}}">{{.Name}}</a>
                 <div class="post-author">
                   Dernier message par
-                  <a href="/user/{{(index .Messages .LastPost).Author.ID}}">
+                 
                     {{(index .Messages .LastPost).Author.Username}}
-                  </a>
+               
                 </div>
-                <div class="post-text">
+                <a class="post-text" href="/topic/{{.TopicID}}#{{(index .Messages .LastPost).MessageID}}">
                   {{preview (index .Messages .LastPost).Content 300}}
-                </div>
+                </a>
               </div>
             {{ else }}
               <div class="post-content">
