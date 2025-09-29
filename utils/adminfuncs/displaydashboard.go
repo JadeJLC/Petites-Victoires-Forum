@@ -82,12 +82,14 @@ func GetStats(topics []models.Topic) ([]models.LastPost, models.Stats, []models.
 	}
 	stats.LastUser = users[index].Username
 
-	index = len(topics) - 1
-	if index < 0 {
-		index = 0
+	if len(topics) != 0 {
+		index = len(topics) - 1
+		if index < 0 {
+			index = 0
+		}
+		stats.LastTopic = topics[index].Name
 	}
 	stats.TotalTopics = len(topics)
-	stats.LastTopic = topics[index].Name
 
 	var lastMonthPosts []models.LastPost
 	lastMonthPosts, stats.LastMonthPost, err = getdata.LastMonthPost()
