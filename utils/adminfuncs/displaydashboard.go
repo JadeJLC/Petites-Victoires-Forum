@@ -3,7 +3,6 @@ package admin
 import (
 	"database/sql"
 	"log"
-	"sort"
 
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
@@ -36,10 +35,6 @@ func GetAllTopics(categories []models.Category, db *sql.DB) ([]models.Category, 
 
 		topics = append(topics, topicList...)
 	}
-
-	sort.Slice(topics, func(i, j int) bool {
-		return topics[i].TopicID > topics[j].TopicID
-	})
 
 	return categories, topics, nil
 }
@@ -83,11 +78,7 @@ func GetStats(topics []models.Topic) ([]models.LastPost, models.Stats, []models.
 	stats.LastUser = users[index].Username
 
 	if len(topics) != 0 {
-		index = len(topics) - 1
-		if index < 0 {
-			index = 0
-		}
-		stats.LastTopic = topics[index].Name
+		stats.LastTopic = topics[0].Name
 	} else {
 		stats.LastTopic = "Aucun sujet ouvert sur le forum"
 	}

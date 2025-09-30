@@ -85,16 +85,16 @@ func CreateTopicHandler(w http.ResponseWriter, r *http.Request) {
 
 	data := struct {
 		PageName    string
-		LoginErr    string
 		Category    models.Category
 		CurrentUser models.UserLoggedIn
 		Categories  []models.Category
+		LoginErr    string
 	}{
 		PageName:    "Forum",
-		LoginErr:    "",
 		Category:    currentCategory,
 		CurrentUser: currentUser,
 		Categories:  categories,
+		LoginErr:    "",
 	}
 
 	err = CreatTopicHtml.Execute(w, data)

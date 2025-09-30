@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"sort"
 	"strings"
 
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
@@ -65,6 +66,10 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	sort.Slice(topics, func(i, j int) bool {
+		return topics[i].TopicID > topics[j].TopicID
+	})
+
 	// Récupère les statistiques  du forum
 	lastmonthpost, stats, users, err := admin.GetStats(topics)
 	if err != nil {
@@ -73,7 +78,12 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	stats.TotalCats = len(categories)
-	stats.LastCat = categories[0].Name
+
+	index := len(categories) - 1
+	if index < 0 {
+		index = 0
+	}
+	stats.LastCat = categories[index].Name
 
 	// Analyse l'url pour choisir quelle page afficher
 	if len(parts) == 3 && parts[2] == "" {
@@ -90,38 +100,7 @@ func AdminHandler(w http.ResponseWriter, r *http.Request) {
 		case "topiclist":
 			// Affiche la liste des sujets
 			adminTopics(topics, categories, r, w, currentUser, stats)
-		case "seeposts":
-			// Affiche les messages du dernier moi
-			adminPost(lastmonthpost, r, w, currentUser, stats)
 		}
-	}
-}
-
-// Fonction pour affiche la liste des messages (non opérationnelle pour l'instant)
-func adminPost(lastmonthpost []models.LastPost, r *http.Request, w http.ResponseWriter, currentUser models.UserLoggedIn, stats models.Stats) {
-	data := struct {
-		PageName    string
-		LastMonth   []models.LastPost
-		CurrentUser models.UserLoggedIn
-		Stats       models.Stats
-	}{
-		PageName:    "Messages du dernier mois",
-		LastMonth:   lastmonthpost,
-		CurrentUser: currentUser,
-		Stats:       stats,
-	}
-
-	pageToLoad, err := template.ParseFiles("templates/all-posts.html", "templates/header.html", "templates/initpage.html")
-	if err != nil {
-		log.Printf("<adminhandler.go> Erreur dans la génération du template adminPost : %v", err)
-		utils.InternalServError(w)
-		return
-	}
-
-	err = pageToLoad.Execute(w, data)
-	if err != nil {
-		utils.InternalServError(w)
-		return
 	}
 }
 
