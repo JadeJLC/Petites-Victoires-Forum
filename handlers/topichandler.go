@@ -9,6 +9,7 @@ import (
 
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/models"
+	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
@@ -64,17 +65,31 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	session, err := sessions.GetSessionFromRequest(r)
+	if err != nil {
+		log.Printf("<topichandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+	var loginErr string
+	if session.ID != "" {
+		loginErr, err = getdata.GetLoginErr(session)
+		if err != nil {
+			log.Printf("<topichandler.go> Could not execute GetLoginErr: %v\n", err)
+		}
+	}
+
 	data := struct {
 		PageName    string
 		Topic       models.Topic
 		Categories  []models.Category
-		LoginData   models.LoginData
+		LoginErr    string
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    topic.Name,
 		Topic:       topic,
 		Categories:  categories,
-		LoginData:   models.LoginData{},
+		LoginErr:    loginErr,
 		CurrentUser: currentUser,
 	}
 

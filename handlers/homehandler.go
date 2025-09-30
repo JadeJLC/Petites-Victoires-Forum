@@ -8,6 +8,7 @@ import (
 
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/models"
+	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 	_ "github.com/mattn/go-sqlite3"
@@ -35,44 +36,48 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	// --- Récupération des catégories ---
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<cathandler.go> Could not open database : %v\n", err)
+		log.Printf("<homehandler.go> Could not open database : %v\n", err)
 		return
 	}
 	defer db.Close()
 
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("<homehandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
+	}
+
+	// --- Gestion des erreurs de login ---
+
+	session, err := sessions.GetSessionFromRequest(r)
+	if err != nil {
+		log.Printf("<homehandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+	var loginErr string
+	if session.ID != "" {
+		loginErr, err = getdata.GetLoginErr(session)
+		if err != nil {
+			log.Printf("<homehandler.go> Could not execute GetLoginErr: %v\n", err)
+		}
 	}
 
 	// --- Structure de données ---
 
 	data := struct {
 		PageName    string
-		LoginData   models.LoginData
+		LoginErr    string
 		Posts       []models.LastPost
 		Categories  []models.Category
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    "Forum",
-		LoginData:   models.LoginData{},
+		LoginErr:    loginErr,
 		Posts:       lastPosts,
 		Categories:  categories,
 		CurrentUser: currentUser,
-	}
-
-	// --- Si POST, on remplit LoginData ---
-
-	if r.Method == "POST" {
-		loginData, err := utils.LoginPopUp(r, w)
-		if err == nil {
-			data.LoginData = loginData
-		}
-
-		// Connexion réussie (ouverture de session, accès aux boutons, etc, à ajouter ici)
-
 	}
 
 	// --- Sinon : Renvoi des données de base au template ---
