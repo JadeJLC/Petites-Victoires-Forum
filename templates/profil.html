@@ -5,8 +5,10 @@
     <!-- Header -->
     {{template "ForumHeader" .}}
 
+     
     <!-- Main Content -->
     <main class="main-content">
+
       <!-- Sidebar -->
       <aside class="sidebar">
         <h3>Profil</h3>
@@ -14,8 +16,41 @@
         <p>{{.User.Username}}</p>
         <p>{{.User.Email}}</p>
       </aside>
-      <section class="posts-section">
-        {{range .Posts}}
+
+       
+
+      <section class="posts-section is-hidden" id="see-liked-posts">
+        <div class="dashboard-header">
+  <div class="topic-top"> <h2>Messages que j'ai liké</h2>
+    <button onclick="HideLiked()">Voir mes messages</button>
+    </div></div> <br>
+        {{range .LikedPosts}}
+        <div class="post-card">
+          <div class="post-avatar" src="{{.Author.ProfilPic}}"></div>
+          <div class="post-content">
+            <a class="post-title" href="/topic/{{.TopicID}}">{{.TopicName}}</a>
+            <span>Message de {{.Author.Username}} </span>
+            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">
+              {{.Content}}
+            </a>
+          </div>
+        </div>
+        {{else}}
+        <div class="post-card">
+          <div class="post-content">
+            <div class="post-text">
+              <center>Il n'y a aucun message à afficher pour l'instant.</center>
+            </div>
+          </div>
+        </div>
+        {{end}}
+      </section>
+
+      <section class="posts-section" id="see-my-posts"><div class="dashboard-header">
+  <div class="topic-top"> <h2>Mes messages</h2>
+    <button onclick="HideMine()">Voir les messages que j'ai liké</button>
+    </div></div><br>
+        {{range .MyPosts}}
         <div class="post-card">
           <div class="post-avatar" src="{{.Author.ProfilPic}}"></div>
           <div class="post-content">
@@ -37,5 +72,18 @@
       </section>
       
     </main>
+
+    <script>
+      const LikedPosts = document.getElementById("see-liked-posts")
+      const MyPosts = document.getElementById("see-my-posts")
+      function HideLiked() {
+        MyPosts.classList.remove("is-hidden");
+        LikedPosts.classList.add("is-hidden");
+      }
+      function HideMine() {
+        LikedPosts.classList.remove("is-hidden");
+        MyPosts.classList.add("is-hidden");
+      }
+    </script>
   </body>
 </html>
