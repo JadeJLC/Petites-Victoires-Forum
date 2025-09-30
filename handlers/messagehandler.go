@@ -80,14 +80,14 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 	data := struct {
 		Topic       models.Topic
 		PageName    string
-		LoginData   models.LoginData
+		LoginErr    string
 		CurrentUser models.UserLoggedIn
 		Categories  []models.Category
 		LastMessage models.Message
 	}{
 		Topic:       topic,
 		PageName:    "Forum",
-		LoginData:   models.LoginData{},
+		LoginErr:    "",
 		CurrentUser: currentUser,
 		Categories:  categories,
 		LastMessage: lastMessage,
