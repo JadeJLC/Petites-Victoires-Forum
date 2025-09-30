@@ -50,20 +50,29 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	likedPosts, err := utils.GetUserLikes(user.ID)
+	if err != nil {
+		log.Printf("<profilhandler.go> Could not operate GetUserLikes: %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+
 	// ** Renvoi des données dans le template **
 	pageName := fmt.Sprintf("Voir mon profil : %s", user.Username)
 
 	data := struct {
 		PageName    string
 		User        models.User
-		Posts       []models.LastPost
+		MyPosts     []models.LastPost
+		LikedPosts  []models.LastPost
 		LoginErr    string
 		Categories  []models.Category
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    pageName,
 		User:        user,
-		Posts:       userPosts,
+		MyPosts:     userPosts,
+		LikedPosts:  likedPosts,
 		LoginErr:    "",
 		Categories:  categories,
 		CurrentUser: currentUser,

@@ -42,7 +42,6 @@ func GetLastPosts() ([]models.LastPost, error) {
         FROM message m
         JOIN topic t ON m.topic_id = t.id
         ORDER BY m.created_at DESC
-        LIMIT 7
     `
 
 	rows, err := db.Query(sqlQuery)
@@ -63,7 +62,18 @@ func GetLastPosts() ([]models.LastPost, error) {
 			return nil, err
 		}
 		mw.Author, err = GetUserInfoFromID(db, user_id)
-		messagesWithTopics = append(messagesWithTopics, mw)
+		toAppend := true
+		for i := 0; i < len(messagesWithTopics); i++ {
+			if messagesWithTopics[i].TopicName == mw.TopicName && messagesWithTopics[i].Content == mw.Content {
+				toAppend = false
+			}
+		}
+		if toAppend {
+			messagesWithTopics = append(messagesWithTopics, mw)
+		}
+		if len(messagesWithTopics) == 7 {
+			break
+		}
 	}
 
 	if err = rows.Err(); err != nil {
