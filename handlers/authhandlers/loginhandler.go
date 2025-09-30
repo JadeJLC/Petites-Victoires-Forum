@@ -2,7 +2,6 @@ package authhandlers
 
 import (
 	"database/sql"
-	"fmt"
 	"html/template"
 	"net/http"
 	"strings"
@@ -25,7 +24,6 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 	if referer == "" {
 		referer = "/"
 	}
-	fmt.Println(referer)
 
 	switch r.Method {
 	case http.MethodPost:
@@ -53,28 +51,12 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			} else {
 				// En cas d'erreur qui ne vient pas de la base de données
 				// Création d'une session temporaire et anonyme
-				session, err := sessions.CreateSession(0)
+				err := InitSession(w, 0, "LoginErr", loginErr.Error())
 				if err != nil {
 					utils.InternalServError(w)
 					return
 				}
-				// Stockage du message d'erreur dans la session
-				session.Data["LoginErr"] = loginErr.Error()
 
-				// Update de la session
-				if err := sessions.SaveSessionToDB(session); err != nil {
-					utils.InternalServError(w)
-					return
-				}
-				// Pose du cookie
-				http.SetCookie(w, &http.Cookie{
-					Name:     "session_id",
-					Value:    session.ID,
-					Expires:  session.ExpiresAt,
-					HttpOnly: true,
-					Secure:   false, // false en local, true si HTTPS
-					Path:     "/",
-				})
 				// Redirection vers la page d'origine
 				http.Redirect(w, r, referer, http.StatusSeeOther)
 				return
@@ -87,32 +69,36 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		// Créer une nouvelle session
-		session, err := sessions.CreateSession(user.ID)
+		err = InitSession(w, user.ID, "user", user.Username)
 		if err != nil {
 			utils.InternalServError(w)
-			return
 		}
-
-		// Ajoute des infos dans la session
-		session.Data["user"] = user.Username
-		if err := sessions.SaveSessionToDB(session); err != nil {
-			utils.InternalServError(w)
-			return
-		}
-
-		// Pose le cookie
-		http.SetCookie(w, &http.Cookie{
-			Name:     "session_id",
-			Value:    session.ID,
-			Expires:  session.ExpiresAt,
-			HttpOnly: true,
-			Secure:   false, // false en local, true si HTTPS
-			Path:     "/",
-		})
 
 		http.Redirect(w, r, referer, http.StatusSeeOther)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
+}
+
+// Crée, sauvegarde une session, permet d'y insérer une donnée et pose le cookie
+func InitSession(w http.ResponseWriter, id int, fieldName string, fieldData any) error {
+	session, err := sessions.CreateSession(id)
+	if err != nil {
+		return err
+	}
+
+	session.Data[fieldName] = fieldData
+	if err := sessions.SaveSessionToDB(session); err != nil {
+		return err
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "session_id",
+		Value:    session.ID,
+		Expires:  session.ExpiresAt,
+		HttpOnly: true,
+		Secure:   false, // false en local, true si HTTPS
+		Path:     "/",
+	})
+	return nil
 }
