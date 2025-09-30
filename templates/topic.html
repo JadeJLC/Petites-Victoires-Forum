@@ -9,7 +9,12 @@
 <div class="dashboard-header">
   <div class="topic-top">
     <h2>{{.Topic.Name}}</h2>
-     {{if .CurrentUser.LogStatus}}<button class="respond-btn" onclick="showResponseBox(this)">Répondre</button>{{end}}
+     {{if .CurrentUser.LogStatus}}<form action="/answermessage" method="GET">
+          <input type="hidden" name="topic_id" value="{{.Topic.TopicID}}"> 
+          <button type="submit" class="respond-btn">
+           Répondre 
+          </button>
+        </form>{{end}}
   </div>
 </div>
 
