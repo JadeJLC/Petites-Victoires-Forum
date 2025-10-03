@@ -72,6 +72,7 @@ func LoginHandler(w http.ResponseWriter, r *http.Request) {
 		err = InitSession(w, user.ID, "user", user.Username)
 		if err != nil {
 			utils.InternalServError(w)
+			return
 		}
 
 		http.Redirect(w, r, referer, http.StatusSeeOther)

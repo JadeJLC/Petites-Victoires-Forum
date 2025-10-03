@@ -10,6 +10,7 @@ import (
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils"
+	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
 var ProfilHtml = template.Must(template.New("profil.html").ParseFiles(
@@ -21,7 +22,7 @@ var ProfilHtml = template.Must(template.New("profil.html").ParseFiles(
 func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Print("<profilhandler.go> Erreur à l'ouverture de la base de données :", err)
+		log.Print("ERREUR : <profilhandler.go> Erreur à l'ouverture de la base de données :", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -30,7 +31,7 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 	// Création du header
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("ERREUR : <profilhandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -38,21 +39,21 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 	// ** Récupération des infos de l'utilisateur **
 	user, err := getUserProfile(currentUser.Username, db)
 	if err != nil {
-		log.Println("<profilhandler.go> Erreur dans la récupération des données utilisateur :", err)
+		log.Println("ERREUR : <profilhandler.go> Erreur dans la récupération des données utilisateur :", err)
 		utils.InternalServError(w)
 		return
 	}
 
 	userPosts, err := utils.GetUserPosts(user.ID)
 	if err != nil {
-		log.Printf("<profilhandler.go> Could not operate GetUserPosts: %v\n", err)
+		log.Printf("ERREUR : <profilhandler.go> Erreur dans l'exécution de GetUserPosts: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
 
 	likedPosts, err := utils.GetUserLikes(user.ID)
 	if err != nil {
-		log.Printf("<profilhandler.go> Could not operate GetUserLikes: %v\n", err)
+		log.Printf("ERREUR : <profilhandler.go> Erreur dans l'exécution de GetUserLikes: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -88,13 +89,17 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 func getUserProfile(username string, db *sql.DB) (models.User, error) {
 	var user models.User
 
-	sql := `SELECT id, username, email, profilpic FROM user WHERE username = ?`
+	sql := `SELECT id, username, email, profilpic, role_id FROM user WHERE username = ?`
 	row := db.QueryRow(sql, username)
 
-	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.ProfilPic)
+	var role string
+
+	err := row.Scan(&user.ID, &user.Username, &user.Email, &user.ProfilPic, &role)
 	if err != nil {
 		return models.User{}, err
 	}
+
+	user.Status = getdata.SetUserStatus(role)
 
 	return user, nil
 }

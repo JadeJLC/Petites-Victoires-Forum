@@ -22,7 +22,7 @@ func GetLastPosts() ([]models.LastPost, error) {
 	// Ouverture de la base de données
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<getlastposts.go> Could not open database: %v\n", err)
+		log.Printf("ERREUR : <getlastposts.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -46,7 +46,7 @@ func GetLastPosts() ([]models.LastPost, error) {
 
 	rows, err := db.Query(sqlQuery)
 	if err != nil {
-		log.Printf("<getlastposts.go> Error querying messages: %v\n", err)
+		log.Printf("ERREUR : <getlastposts.go> Erreur dans la récupération des messages : %v\n", err)
 		return nil, err
 	}
 	defer rows.Close()
@@ -58,7 +58,7 @@ func GetLastPosts() ([]models.LastPost, error) {
 		var mw models.LastPost
 		var user_id int
 		if err := rows.Scan(&mw.MessageID, &mw.TopicID, &mw.Content, &mw.Created, &user_id, &mw.TopicName); err != nil {
-			log.Printf("<getlastposts.go> Error scanning message row: %v\n", err)
+			log.Printf("ERREUR : <getlastposts.go> Erreur dans le parcours de la base de données : %v\n", err)
 			return nil, err
 		}
 		mw.Author, err = GetUserInfoFromID(db, user_id)
@@ -77,7 +77,7 @@ func GetLastPosts() ([]models.LastPost, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Printf("<getlastposts.go> Error during rows iteration: %v\n", err)
+		log.Printf("ERREUR : <getlastposts.go> Erreur dans la conversation des données de la base de données : %v\n", err)
 		return nil, err
 	}
 
@@ -87,7 +87,7 @@ func GetLastPosts() ([]models.LastPost, error) {
 func LastMonthPost() ([]models.LastPost, int, error) {
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<adminhandler.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		log.Printf("ERREUR : <getlastposts.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return nil, 0, err
 	}
 	defer db.Close()
@@ -111,7 +111,7 @@ func LastMonthPost() ([]models.LastPost, int, error) {
     `
 	rows, err := db.Query(sqlQuery)
 	if err != nil {
-		log.Print("<lastmonthpost.go> Erreur dans la récupération des derniers messages :", err)
+		log.Print("ERREUR : <getlastposts.go> Erreur dans la récupération des derniers messages :", err)
 		return nil, 0, err
 	}
 	defer rows.Close()
@@ -122,7 +122,7 @@ func LastMonthPost() ([]models.LastPost, int, error) {
 
 		err := rows.Scan(&currentPost.MessageID, &currentPost.TopicID, &currentPost.Content, &currentPost.Created, &currentPost.Author.ID, &currentPost.Likes, &currentPost.Dislikes, &currentPost.Author.Username, &currentPost.TopicName)
 		if err != nil {
-			log.Print("<lastmonthpost.go> Erreur dans le parcours de la base de données :", err)
+			log.Print("ERREUR : <getlastposts.go> Erreur dans le parcours de la base de données :", err)
 			return nil, 0, err
 		}
 		lastMontPosts = append(lastMontPosts, currentPost)

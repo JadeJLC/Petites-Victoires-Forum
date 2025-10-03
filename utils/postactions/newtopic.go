@@ -55,12 +55,10 @@ func addTopicToDatabase(db *sql.DB, newtopic models.Topic, userID int) error {
 		return err
 	}
 
-	result, err := stmt.Exec(newtopic.CatID, newtopic.Name, userID)
+	_, err = stmt.Exec(newtopic.CatID, newtopic.Name, userID)
 	if err != nil {
 		return err
 	}
-	n, _ := result.RowsAffected()
-	log.Printf("<newtopic.go> %d nouveau sujet : %s. Ajouté à la catégorie %d par l'utilisateur n°%d)", n, newtopic.Name, newtopic.CatID, userID)
 
 	return nil
 }

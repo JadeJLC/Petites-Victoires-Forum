@@ -28,7 +28,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<cathandler.go> Could not open database : %v\n", err)
+		log.Printf("ERREUR : <messagehandler.go> Erreur dans l'ouverture de la base de données : %v\n", err)
 		return
 	}
 	defer db.Close()
@@ -36,7 +36,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 	ID := r.URL.Query().Get("topic_id")
 	intID, err := strconv.Atoi(ID)
 	if err != nil {
-		fmt.Printf("Erreur de convertion messagehandler topic_id")
+		fmt.Printf("ERREUR : <messagehandler.go> Erreur de convertion : ID du sujet invalide (%s)\n", ID)
 		return
 	}
 	topic, err := getdata.GetTopicInfo(db, intID)
@@ -45,15 +45,14 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 		utils.NotFoundHandler(w)
 		return
 	} else if err != nil {
-		log.Printf("<topichandler.go> Could not operate GetTopicInfo: %v\n", err)
+		log.Printf("ERREUR : <messagehandler.go> Erreur dans l'exécution de GetTopicInfo: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
 	// On charge les categories pour le header
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("ERREUR : <messagehandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -67,7 +66,8 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		message := r.FormValue("new-message")
 		if message == "" {
-			http.Error(w, "Message vide refuser", http.StatusBadRequest)
+			utils.StatusBadRequest(w)
+			log.Println("ERREUR : <messagehandler.go> Tentative de création d'un message vide.")
 			return
 		}
 
@@ -95,7 +95,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = AnswerMessage.Execute(w, data)
 	if err != nil {
-		log.Printf("<messagehandler.go> Could not execute template <answermessage.html>: %v\n", err)
+		log.Printf("ERREUR : <messagehandler.go> Could not execute template <answermessage.html>: %v\n", err)
 		utils.NotFoundHandler(w)
 
 	}

@@ -15,6 +15,16 @@
         <div class="post-avatar" src="{{.User.ProfilPic}}"></div>
         <p>{{.User.Username}}</p>
         <p>{{.User.Email}}</p>
+        <p>{{.User.Status}}
+          {{if eq .User.Status "Membre"}}
+    <form  method="POST" action="/sendrequest">
+      <input type="hidden" name="username" value="{{.User.Username}}">
+      <input type="hidden" name="id" value="{{.User.ID}}">
+      <button type="submit" name ="action" value="requestmod">Demander à rejoindre la modération</button>
+    </form>
+          {{end}}
+
+        </p>
       </aside>
 
        
