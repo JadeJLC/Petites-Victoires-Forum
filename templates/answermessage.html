@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr">
   {{template "InitPage" .}}
-  <>
+  
     <!-- Header -->
     {{template "ForumHeader" .}}
 
@@ -22,13 +22,12 @@
 </main><br>
       <div class="input-name-topic"><p>{{.LastMessage.Content}}</p></div>
       <form class="create-topic-form" method="POST">
-        <input
-          type="text"
+        <textarea
           class="input-name-topic"
           name="new-message"
           placeholder="Entrer votre message"
           required
-        />
+        ></textarea>
         <div class="create-topic-form-button">
           <button type="submit">Envoyer</button>
         </div>

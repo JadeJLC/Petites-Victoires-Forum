@@ -25,23 +25,80 @@
           {{end}}
 
         </p>
+
+        <div class="profil-nav">
+        <button onclick="ShowLikes()">Messages que j'ai 👍 ou 👎</button>
+        <button onclick="ShowPosts()">💬 Tous mes messages</button>
+        <button onclick="ShowTopics()">🔖 Sujets que j'ai ouverts</button>
+        </div>
+
       </aside>
 
        
 
       <section class="posts-section is-hidden" id="see-liked-posts">
-        <div class="dashboard-header">
-  <div class="topic-top"> <h2>Messages que j'ai liké</h2>
-    <button onclick="HideLiked()">Voir mes messages</button>
+   
+      <div class="dashboard-header">
+  <div class="topic-top"> <h2>Mes 👍</h2>
+    
     </div></div> <br>
         {{range .LikedPosts}}
         <div class="post-card">
           <div class="post-avatar" src="{{.Author.ProfilPic}}"></div>
           <div class="post-content">
             <a class="post-title" href="/topic/{{.TopicID}}">{{.TopicName}}</a>
-            <span>Message de {{.Author.Username}} </span>
-            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">
-              {{.Content}}
+            <br><span>Message de {{.Author.Username}} </span>
+            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">{{.Content}}
+            </a>
+          </div>
+        </div>
+        {{else}}
+        <div class="post-card">
+          <div class="post-content">
+            <div class="post-text">
+              <center>Il n'y a aucun message à afficher pour l'instant.</center>
+            </div>
+          </div>
+        </div>
+        {{end}}
+        </div></section>
+
+         <section class="posts-section is-hidden" id="see-disliked-posts">
+         <div>
+      <div class="dashboard-header">
+  <div class="topic-top"> <h2>Mes 👎</h2>
+    </div></div> <br>
+        {{range .DislikedPosts}}
+        <div class="post-card">
+          <div class="post-avatar" src="{{.Author.ProfilPic}}"></div>
+          <div class="post-content">
+            <a class="post-title" href="/topic/{{.TopicID}}">{{.TopicName}}</a>
+            <br><span>Message de {{.Author.Username}} </span>
+            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">{{.Content}}
+            </a>
+          </div>
+        </div>
+        {{else}}
+        <div class="post-card">
+          <div class="post-content">
+            <div class="post-text">
+              <center>Il n'y a aucun message à afficher pour l'instant.</center>
+            </div>
+          </div>
+        </div>
+        {{end}}
+        </div>
+      </section>
+
+      <section class="posts-section is-hidden" id="see-my-posts"><div class="dashboard-header">
+  <div class="topic-top"> <h2>Tous mes messages</h2>
+    </div></div><br>
+        {{range .MyPosts}}
+        <div class="post-card">
+          <div class="post-avatar" src="{{.Author.ProfilPic}}"></div>
+          <div class="post-content">
+            <a class="post-title" href="/topic/{{.TopicID}}">Sur le sujet : {{.TopicName}}</a>
+            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">{{.Content}}
             </a>
           </div>
         </div>
@@ -56,17 +113,15 @@
         {{end}}
       </section>
 
-      <section class="posts-section" id="see-my-posts"><div class="dashboard-header">
-  <div class="topic-top"> <h2>Mes messages</h2>
-    <button onclick="HideMine()">Voir les messages que j'ai liké</button>
+      <section class="posts-section" id="see-my-topics"><div class="dashboard-header">
+  <div class="topic-top"> <h2>Sujets que j'ai ouverts</h2>
     </div></div><br>
-        {{range .MyPosts}}
+        {{range .Topics}}
         <div class="post-card">
           <div class="post-avatar" src="{{.Author.ProfilPic}}"></div>
           <div class="post-content">
             <a class="post-title" href="/topic/{{.TopicID}}">{{.TopicName}}</a>
-            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">
-              {{.Content}}
+            <a class="post-text" href="/topic/{{.TopicID}}#{{.MessageID}}">{{.Content}}
             </a>
           </div>
         </div>
@@ -85,14 +140,28 @@
 
     <script>
       const LikedPosts = document.getElementById("see-liked-posts")
+      const DislikedPosts = document.getElementById("see-disliked-posts")
       const MyPosts = document.getElementById("see-my-posts")
-      function HideLiked() {
+      const MyTopics = document.getElementById("see-my-topics")
+
+      function ShowPosts() {
         MyPosts.classList.remove("is-hidden");
+        MyTopics.classList.add("is-hidden");
         LikedPosts.classList.add("is-hidden");
+        DislikedPosts.classList.add("is-hidden");
       }
-      function HideMine() {
+      function ShowLikes() {
         LikedPosts.classList.remove("is-hidden");
+        DislikedPosts.classList.remove("is-hidden");
         MyPosts.classList.add("is-hidden");
+        MyTopics.classList.add("is-hidden");
+      }
+
+      function ShowTopics(){
+        LikedPosts.classList.add("is-hidden");
+        DislikedPosts.classList.add("is-hidden");
+        MyPosts.classList.add("is-hidden");
+        MyTopics.classList.remove("is-hidden");
       }
     </script>
   </body>

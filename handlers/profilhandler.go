@@ -53,7 +53,21 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 
 	likedPosts, err := utils.GetUserLikes(user.ID)
 	if err != nil {
-		log.Printf("ERREUR : <profilhandler.go> Erreur dans l'exécution de GetUserLikes: %v\n", err)
+		log.Printf("ERREUR : <profilhandler.go> Erreur dans l'exécution de GetUserLikes : %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+
+	dislikedPosts, err := utils.GetUserDislikes(user.ID)
+	if err != nil {
+		log.Printf("ERREUR : <profilhandler.go> Erreur dans l'exécution de GetUserDislikes : %v\n", err)
+		utils.InternalServError(w)
+		return
+	}
+
+	myTopics, err := utils.GetUserTopics(user.ID)
+	if err != nil {
+		log.Printf("ERREUR : <profilhandler.go> Erreur dans l'exécution de GetUserTopics : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -62,21 +76,25 @@ func ProfilHandler(w http.ResponseWriter, r *http.Request) {
 	pageName := fmt.Sprintf("Voir mon profil : %s", user.Username)
 
 	data := struct {
-		PageName    string
-		User        models.User
-		MyPosts     []models.LastPost
-		LikedPosts  []models.LastPost
-		LoginErr    string
-		Categories  []models.Category
-		CurrentUser models.UserLoggedIn
+		PageName      string
+		User          models.User
+		MyPosts       []models.LastPost
+		LikedPosts    []models.LastPost
+		DislikedPosts []models.LastPost
+		Topics        []models.LastPost
+		LoginErr      string
+		Categories    []models.Category
+		CurrentUser   models.UserLoggedIn
 	}{
-		PageName:    pageName,
-		User:        user,
-		MyPosts:     userPosts,
-		LikedPosts:  likedPosts,
-		LoginErr:    "",
-		Categories:  categories,
-		CurrentUser: currentUser,
+		PageName:      pageName,
+		User:          user,
+		MyPosts:       userPosts,
+		LikedPosts:    likedPosts,
+		DislikedPosts: dislikedPosts,
+		Topics:        myTopics,
+		LoginErr:      "",
+		Categories:    categories,
+		CurrentUser:   currentUser,
 	}
 
 	err = ProfilHtml.Execute(w, data)

@@ -43,12 +43,64 @@ func GetUserInfoFromSess(sessId string) (models.User, error) {
 	return user, nil
 }
 
+func GetUserPosts(userId int) ([]models.LastPost, error) {
+	var posts []models.LastPost
+	var post models.LastPost
+	db, err := sql.Open("sqlite3", "./data/forum.db")
+	if err != nil {
+		log.Printf("ERREUR : <getuserprofil.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		return nil, err
+	}
+	defer db.Close()
+
+	sqlQuery := `
+        SELECT
+            m.id,
+            m.topic_id,
+            m.content,
+            m.created_at,
+            t.name
+        FROM message m
+        JOIN topic t ON m.topic_id = t.id
+		WHERE m.user_id = ?
+        ORDER BY m.created_at DESC
+    `
+
+	rows, err := db.Query(sqlQuery, userId)
+	if err != nil {
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
+		return []models.LastPost{}, err
+	}
+
+	for rows.Next() {
+		if err := rows.Scan(&post.MessageID, &post.TopicID, &post.Content, &post.Created, &post.TopicName); err != nil {
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données : %v\n", err)
+			return nil, err
+		}
+		post.Author, err = getdata.GetUserInfoFromID(db, userId)
+		if err != nil {
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
+			return nil, err
+		}
+
+		posts = append(posts, post)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données : %v\n", err)
+		return nil, err
+	}
+
+	return posts, nil
+
+}
+
 func GetUserLikes(userId int) ([]models.LastPost, error) {
 	var posts []models.LastPost
 	var post models.LastPost
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("ERREUR : <getuserposts.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		log.Printf("ERREUR : <getuserprofil.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -69,18 +121,18 @@ func GetUserLikes(userId int) ([]models.LastPost, error) {
 
 	rows, err := db.Query(sqlQuery, userId)
 	if err != nil {
-		log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
 		return []models.LastPost{}, err
 	}
 
 	for rows.Next() {
 		if err := rows.Scan(&post.MessageID, &post.TopicID, &post.Content, &post.Created, &post.TopicName); err != nil {
-			log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données : %v\n", err)
 			return nil, err
 		}
 		post.Author, err = getdata.GetUserInfoFromID(db, userId)
 		if err != nil {
-			log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
 			return nil, err
 		}
 
@@ -88,51 +140,51 @@ func GetUserLikes(userId int) ([]models.LastPost, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données : %v\n", err)
 		return nil, err
 	}
 
 	return posts, nil
-
 }
 
-func GetUserPosts(userId int) ([]models.LastPost, error) {
+func GetUserDislikes(userId int) ([]models.LastPost, error) {
 	var posts []models.LastPost
 	var post models.LastPost
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("ERREUR : <getuserposts.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		log.Printf("ERREUR : <getuserprofil.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return nil, err
 	}
 	defer db.Close()
 
 	sqlQuery := `
         SELECT
-            m.id,
+            d.message_id,
             m.topic_id,
             m.content,
             m.created_at,
             t.name
-        FROM message m
+        FROM dislike d
+		JOIN message m ON d.message_id = m.id
         JOIN topic t ON m.topic_id = t.id
-		WHERE m.user_id = ?
+		WHERE d.user_id = ?
         ORDER BY m.created_at DESC
     `
 
 	rows, err := db.Query(sqlQuery, userId)
 	if err != nil {
-		log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
 		return []models.LastPost{}, err
 	}
 
 	for rows.Next() {
 		if err := rows.Scan(&post.MessageID, &post.TopicID, &post.Content, &post.Created, &post.TopicName); err != nil {
-			log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données : %v\n", err)
 			return nil, err
 		}
 		post.Author, err = getdata.GetUserInfoFromID(db, userId)
 		if err != nil {
-			log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
 			return nil, err
 		}
 
@@ -140,10 +192,78 @@ func GetUserPosts(userId int) ([]models.LastPost, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données : %v\n", err)
 		return nil, err
 	}
 
 	return posts, nil
+}
 
+func GetUserTopics(userId int) ([]models.LastPost, error) {
+	// 1. Initialize variables
+	var topics []models.LastPost // Renamed 'posts' to 'topics' for clarity
+
+	// 2. Database connection and error handling
+	db, err := sql.Open("sqlite3", "./data/forum.db")
+	if err != nil {
+		log.Printf("ERREUR : <getuserprofil.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		return nil, err
+	}
+	defer db.Close() // Ensure the connection is closed
+
+	// 3. SQL Query to find topics started by the user
+	sqlQuery := `
+        SELECT 
+            t.id AS topic_id,
+            t.name AS topic_name,
+            m.id AS message_id,
+            m.content AS message_content,
+            m.created_at AS message_created_at
+        FROM topic t
+        JOIN message m ON t.id = m.topic_id
+        WHERE m.user_id = ?
+        AND m.id = (
+            SELECT MIN(id) 
+            FROM message 
+            WHERE topic_id = t.id
+        )
+        ORDER BY m.created_at DESC
+    `
+
+	rows, err := db.Query(sqlQuery, userId)
+	if err != nil {
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	for rows.Next() {
+		var topic models.LastPost
+
+		if err := rows.Scan(
+			&topic.TopicID,
+			&topic.TopicName,
+			&topic.MessageID,
+			&topic.Content,
+			&topic.Created,
+		); err != nil {
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données (Scan): %v\n", err)
+			return nil, err
+		}
+
+		topic.Author, err = getdata.GetUserInfoFromID(db, userId)
+		if err != nil {
+			log.Printf("ERREUR : <getuserprofil.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
+			return nil, err
+		}
+
+		topics = append(topics, topic)
+	}
+
+	if err = rows.Err(); err != nil {
+		log.Printf("ERREUR : <getuserprofil.go> Erreur dans le parcours de la base de données (rows.Err): %v\n", err)
+		return nil, err
+	}
+
+	return topics, nil
 }
