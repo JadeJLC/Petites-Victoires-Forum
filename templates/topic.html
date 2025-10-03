@@ -2,10 +2,8 @@
 <html lang="fr">
 {{template "InitPage" .}}
 <body>
-    <!-- Header -->
-   {{template "ForumHeader" .}}
+    {{template "ForumHeader" .}}
 
-<!-- Main Content -->
 <div class="dashboard-header">
   <div class="topic-top">
     <h2>{{.Topic.Name}}</h2>
@@ -20,60 +18,75 @@
 
 <main class="main-content">
 
-    <!-- Sidebar -->
-      <aside class="sidebar">
+    <aside class="sidebar">
         {{range .Topic.Messages}}
         • <a href="#{{.MessageID}}">Message du {{.Created}}</a> par {{.Author.Username}}
       <br>
       {{end}}
       </aside>
 
-  <!-- Posts Section -->
-   
-        <section class="posts-section">
-            {{range .Topic.Messages}}
+  <section class="posts-section">
+            {{range $index, $message := .Topic.Messages}}
             <div class="post-card 
-            {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID .Author.ID)}} {{if eq .Warning 1}} warning {{end}} {{end}}"
-             id="{{.MessageID}}" >
-                <img class="post-avatar" src="{{.Author.ProfilPic}}"/>
+            {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID $message.Author.ID)}} {{if eq $message.Warning 1}} warning {{end}} {{end}}"
+             id="{{$message.MessageID}}" >
+                <img class="post-avatar" src="{{$message.Author.ProfilPic}}"/>
                 <div class="post-content">
-                    <div class="post-title">{{.Author.Username}}</div>
+                    <div class="post-title">{{$message.Author.Username}}</div>
                     <pre class="post-text">
-{{.Content}}</pre>
+{{$message.Content}}</pre>
                 <div class="post-actions">
                             <form method="POST" action="/messageactions">
-                                <input type="hidden" name="postID" value="{{.MessageID}}">
+                                <input type="hidden" name="modname" value="{{$.CurrentUser.Username}}">
+                                <input type="hidden" name="postID" value="{{$message.MessageID}}">
                                 <input type="hidden" name="topicID" value="{{$.Topic.TopicID}}">
-                               {{if eq $.CurrentUser.UserType 1}} <button name="action" style=" cursor:pointer;" type="submit" value ="delete" title="Supprimer le message">🗑️</button> 
-                               {{if eq .Warning 1}} <button name="action" style="cursor:pointer;" type="submit" value="cancel" title="Annuler le signalement">🔕</button> {{end}}
+                               {{if eq $.CurrentUser.UserType 1}}  
+                               {{if eq $message.Warning 1}} <button name="action" style="cursor:pointer;" type="submit" value="cancel" title="Annuler le signalement">🔕</button> {{end}}
+                               {{if ne $index 0}}
+                               <button class="cancelmove is-hidden" type="button" style="cursor:pointer;" onclick="CancelMove(this)">✖️</button>
+                               <select name="topicindex" class="topicindex is-hidden" title="Choisissez le sujet où placer le message">
+                                <option value=""></option>
+                                    {{range $.AllTopics}}
+                                    <option value="{{.TopicID}}">{{.Name}}</option>
+                                    {{end}}
+                                </select>
+                                <button name="action" style=" cursor:pointer;" type="submit" value ="move" class="movebutton" title="Déplacer le message" onclick="MoveMessage(this)">↩️</button>
+                                
+                            {{end}}
                                {{end}}
                                
                     {{if eq $.CurrentUser.UserType 2}} 
-                    {{if eq .Warning 0}} <button name="action" style="cursor:pointer;" type="submit" value="warn" title="Signaler le message">⚠️</button> {{end}} 
+                    {{if eq $message.Warning 0}}
+                    <button class="cancelwarn is-hidden" type="button" style="cursor:pointer;" onclick="CancelSignal(this)">✖️</button>
+                    <input type="text" name="warning" placeholder="Raison du signalement" class="warning-input is-hidden">
+                    <button name="action" style="cursor:pointer;" type="submit" value="warn" title="Signaler le message" onclick="Signal(this)" class="warnbutton">⚠️</button> {{end}} 
                     {{end}}
                    
-                               {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID .Author.ID)}} 
+                               {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID $message.Author.ID)}} 
+                            
+
+                               <button name="action" style=" cursor:pointer;" type="submit" value ="delete" title="Supprimer le message">🗑️</button>
                                <button name="action" style="cursor: pointer;" type="submit" value="edit" title="Modifier le message">📝</button> {{end}}
                             </form>
                 </div>
                 </div>
 
-            {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID .Author.ID)}}    
-                {{if eq .Warning 1}} <span style="cursor:default" title="Ce message a été signalé comme potentiellement problématique">‼️</span>  {{end}}
+            {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID $message.Author.ID)}}    
+                {{if eq $message.Warning 1}} <span style="cursor:default" title="Ce message a été signalé comme potentiellement problématique">‼️</span>  {{end}}
             {{end}}
                 {{if $.CurrentUser.LogStatus}}<div class="action-column">
                    <form method="POST" action="/like" class="like-form">
-            <input type="hidden" name="postID" value="{{.MessageID}}">
+            <input type="hidden" name="postID" value="{{$message.MessageID}}">
             <button type="submit" class="action-btn">
                 <span>👍</span>
-                <span>{{.Likes}}</span>
+                <span>{{$message.Likes}}</span>
             </button>
                     </form>
                     <form method="POST" action="/dislike" class="like-form">
-            <input type="hidden" name="postID" value="{{.MessageID}}">
+            <input type="hidden" name="postID" value="{{$message.MessageID}}">
             <button type="submit" class="action-btn">
                 <span>👎</span>
-                <span>{{.Dislikes}}</span>
+                <span>{{$message.Dislikes}}</span>
             </button>
                     </form>
                     
@@ -81,10 +94,10 @@
                 {{else }}
                 <div>
                   <span>👍</span>
-                <span>{{.Likes}}</span>
+                <span>{{$message.Likes}}</span>
                 </div>
                 <div> <span>👎</span>
-                <span>{{.Dislikes}}</span></div>
+                <span>{{$message.Dislikes}}</span></div>
                 {{end}}
             </div>
             {{end}}
@@ -93,8 +106,7 @@
         </main>
     </div>
 
-    <!-- Modal de réponse -->
-   {{template "ReponseBox"}}
+    {{template "ReponseBox"}}
 
 
    <style>.posts-section .post-card:first-child {
@@ -105,6 +117,68 @@
      
 
     <script>       
+    function Signal(warnbutton) {
+        const form = warnbutton.closest('form');
+        const warninginput = form.querySelector('.warning-input');
+        const cancelwarn = form.querySelector('.cancelwarn');
+
+        if (warninginput.classList.contains("is-hidden")) {
+            warninginput.classList.remove("is-hidden");
+            cancelwarn.classList.remove("is-hidden");
+            warninginput.required = true;
+            warnbutton.innerHTML = "✅";
+        } else if (warnbutton.innerHTML.includes("✅")) {
+            // Note: This block isn't strictly necessary for the intended form submission flow, 
+            // as clicking a submit button usually sends the form. 
+            // However, I've left it to match the logic of the original else if.
+            warninginput.classList.add("is-hidden");
+            cancelwarn.classList.add("is-hidden");
+            warninginput.required = false;
+        }
+    }
+
+    function CancelSignal(cancelwarn) {
+        const form = cancelwarn.closest('form');
+        const warninginput = form.querySelector('.warning-input');
+        const warnbutton = form.querySelector('.warnbutton');
+
+        warninginput.classList.add("is-hidden");
+        cancelwarn.classList.add("is-hidden");
+        warninginput.required = false;
+        warninginput.value = ""
+        warnbutton.innerHTML = "⚠️";
+    }
+
+    function MoveMessage(movebutton) {
+        const form = movebutton.closest('form');
+        const topicindex = form.querySelector('.topicindex');
+        const cancelmove = form.querySelector('.cancelmove');
+
+        if (topicindex.classList.contains("is-hidden")) {
+            topicindex.classList.remove("is-hidden");
+            cancelmove.classList.remove("is-hidden");
+            topicindex.required = true;
+            movebutton.innerHTML = "✅";
+        } else if (movebutton.innerHTML.includes("✅")) {
+            // See note in Signal() function above.
+            topicindex.classList.add("is-hidden");
+            cancelmove.classList.add("is-hidden");
+            topicindex.required = false;
+        }
+    }
+
+    function CancelMove(cancelmove) {
+        const form = cancelmove.closest('form');
+        const topicindex = form.querySelector('.topicindex');
+        const movebutton = form.querySelector('.movebutton');
+
+        topicindex.classList.add("is-hidden");
+        cancelmove.classList.add("is-hidden");
+        topicindex.value = ""
+        topicindex.required = false;
+        movebutton.innerHTML = "↩️";
+    }
+
         // Animation au scroll
         window.addEventListener('scroll', () => {
             const posts = document.querySelectorAll('.post');

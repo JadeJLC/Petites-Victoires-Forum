@@ -48,7 +48,7 @@ func GetUserLikes(userId int) ([]models.LastPost, error) {
 	var post models.LastPost
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<getuserposts.go> Could not open database: %v\n", err)
+		log.Printf("ERREUR : <getuserposts.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -69,18 +69,18 @@ func GetUserLikes(userId int) ([]models.LastPost, error) {
 
 	rows, err := db.Query(sqlQuery, userId)
 	if err != nil {
-		log.Printf("<getuserposts.go> Could not execute the sql query: %v\n", err)
+		log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
 		return []models.LastPost{}, err
 	}
 
 	for rows.Next() {
 		if err := rows.Scan(&post.MessageID, &post.TopicID, &post.Content, &post.Created, &post.TopicName); err != nil {
-			log.Printf("<getuserposts.go> Error scanning message row: %v\n", err)
+			log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
 			return nil, err
 		}
 		post.Author, err = getdata.GetUserInfoFromID(db, userId)
 		if err != nil {
-			log.Printf("<getuserposts.go> Could not execute GetUserInfoFromID: %v\n", err)
+			log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
 			return nil, err
 		}
 
@@ -88,7 +88,7 @@ func GetUserLikes(userId int) ([]models.LastPost, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Printf("<getuserposts.go> Error during rows iteration: %v\n", err)
+		log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
 		return nil, err
 	}
 
@@ -101,7 +101,7 @@ func GetUserPosts(userId int) ([]models.LastPost, error) {
 	var post models.LastPost
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<getuserposts.go> Could not open database: %v\n", err)
+		log.Printf("ERREUR : <getuserposts.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return nil, err
 	}
 	defer db.Close()
@@ -121,18 +121,18 @@ func GetUserPosts(userId int) ([]models.LastPost, error) {
 
 	rows, err := db.Query(sqlQuery, userId)
 	if err != nil {
-		log.Printf("<getuserposts.go> Could not execute the sql query: %v\n", err)
+		log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de la requête SQL: %v\n", err)
 		return []models.LastPost{}, err
 	}
 
 	for rows.Next() {
 		if err := rows.Scan(&post.MessageID, &post.TopicID, &post.Content, &post.Created, &post.TopicName); err != nil {
-			log.Printf("<getuserposts.go> Error scanning message row: %v\n", err)
+			log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
 			return nil, err
 		}
 		post.Author, err = getdata.GetUserInfoFromID(db, userId)
 		if err != nil {
-			log.Printf("<getuserposts.go> Could not execute GetUserInfoFromID: %v\n", err)
+			log.Printf("ERREUR : <getuserposts.go> Erreur dans l'exécution de GetUserInfoFromID: %v\n", err)
 			return nil, err
 		}
 
@@ -140,7 +140,7 @@ func GetUserPosts(userId int) ([]models.LastPost, error) {
 	}
 
 	if err = rows.Err(); err != nil {
-		log.Printf("<getuserposts.go> Error during rows iteration: %v\n", err)
+		log.Printf("ERREUR : <getuserposts.go> Erreur dans le parcours de la base de données : %v\n", err)
 		return nil, err
 	}
 

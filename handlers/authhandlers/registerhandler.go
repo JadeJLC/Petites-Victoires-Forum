@@ -3,6 +3,7 @@ package authhandlers
 import (
 	"database/sql"
 	"html/template"
+	"log"
 	"net/http"
 	"strings"
 
@@ -88,5 +89,6 @@ func SignUpSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// --- Succès : redirection vers la page d'accueil ---
+	log.Println("USER : Un nouvel utilisateur s'est inscrit : ", username)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

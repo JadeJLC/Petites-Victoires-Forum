@@ -29,7 +29,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<cathandler.go> Could not open database : %v\n", err)
+		log.Printf("ERREUR : <cathandler.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return
 	}
 	defer db.Close()
@@ -41,14 +41,14 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 		utils.NotFoundHandler(w)
 		return
 	} else if err != nil {
-		log.Printf("<cathandler.go> Erreur dans la récupération de la catégorie : %v\n", err)
+		log.Printf("ERREUR : <cathandler.go> Erreur dans la récupération de la catégorie : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
 
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("ERREUR : <cathandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -57,7 +57,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, err := sessions.GetSessionFromRequest(r)
 	if err != nil {
-		log.Printf("<cathandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		log.Printf("ERREUR : <cathandler.go> Could not execute GetSessionFromRequest: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -65,7 +65,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 	if session.ID != "" {
 		loginErr, err = getdata.GetLoginErr(session)
 		if err != nil {
-			log.Printf("<cathandler.go> Could not execute GetLoginErr: %v\n", err)
+			log.Printf("ERREUR : <cathandler.go> Could not execute GetLoginErr: %v\n", err)
 		}
 	}
 
@@ -87,7 +87,7 @@ func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = CatHtml.Execute(w, data)
 	if err != nil {
-		log.Printf("<cathandler.go> Could not execute template <categorie.html> : %v\n", err)
+		log.Printf("ERREUR : <cathandler.go> Could not execute template <categorie.html> : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}

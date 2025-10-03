@@ -11,11 +11,11 @@ func AdminDeleteMessage(topicID, postID int, db *sql.DB) error {
 	sqlUpdate := `DELETE FROM message WHERE id = ?`
 	_, err := db.Exec(sqlUpdate, postID)
 	if err != nil {
-		log.Printf("<adminmessage.go> Erreur dans la suppression du message %d : %v", postID, err)
+		log.Printf("ERREUR : <adminmessage.go> Erreur dans la suppression du message %d : %v", postID, err)
 		return err
 	}
 
-	logMsg := fmt.Sprintf("Suppression du message %d réussie.", postID)
+	logMsg := fmt.Sprintf("ADMIN : Suppression du message %d réussie.", postID)
 
 	var topic string
 	sqlQuery := `SELECT id FROM message WHERE topic_id = ?`
@@ -27,7 +27,7 @@ func AdminDeleteMessage(topicID, postID int, db *sql.DB) error {
 			sqlUpdate := `DELETE FROM topic WHERE id = ?`
 			_, err := db.Exec(sqlUpdate, topicID)
 			if err != nil {
-				log.Printf("<adminmessage.go> Erreur dans la suppression du message %d : %v", postID, err)
+				log.Printf("ERREUR : <adminmessage.go> Erreur dans la suppression du message %d : %v", postID, err)
 				return err
 			}
 			logMsg += fmt.Sprintf(" Le sujet %d ne contient plus aucun message et a été supprimé.", postID)
@@ -72,6 +72,21 @@ func ModSignalMessage(postID int, db *sql.DB) error {
 }
 
 func EditExistingMessage(postID int, db *sql.DB) error {
+
+	return nil
+}
+
+func MoveMessage(topicID int, postID int, db *sql.DB) error {
+	sqlUpdate := `UPDATE message SET topic_id = ? WHERE id = ?`
+	stmt, err := db.Prepare(sqlUpdate)
+	if err != nil {
+		return err
+	}
+	defer stmt.Close()
+	_, err = stmt.Exec(topicID, postID)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

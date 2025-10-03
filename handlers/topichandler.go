@@ -11,6 +11,7 @@ import (
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/utils"
+	admin "github.com/Mathis-Pain/Forum/utils/adminfuncs"
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
@@ -31,7 +32,7 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<topichandler.go> Could not open database : %v\n", err)
+		log.Printf("ERREUR : <topichandler.go> Erreur dans l'ouverture de la base de données : %v\n", err)
 		return
 	}
 	defer db.Close()
@@ -42,7 +43,7 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 		utils.NotFoundHandler(w)
 		return
 	} else if err != nil {
-		log.Printf("<topichandler.go> Could not operate GetTopicInfo: %v\n", err)
+		log.Printf("ERREUR : <topichandler.go> Erreur dans l'exécution de GetTopicInfo: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -59,15 +60,14 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
-		log.Printf("<cathandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("ERREUR : <cathandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
 
 	session, err := sessions.GetSessionFromRequest(r)
 	if err != nil {
-		log.Printf("<topichandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		log.Printf("ERREUR : <topichandler.go> Erreur dans l'exécution de GetSessionFromRequest: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -75,18 +75,29 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 	if session.ID != "" {
 		loginErr, err = getdata.GetLoginErr(session)
 		if err != nil {
-			log.Printf("<topichandler.go> Could not execute GetLoginErr: %v\n", err)
+			log.Printf("ERREUR : <topichandler.go> Erreur dans l'exécution de GetLoginErr: %v\n", err)
+			utils.InternalServError(w)
+			return
 		}
+	}
+
+	_, allTopics, err := admin.GetAllTopics(categories, db)
+	if err != nil {
+		log.Print("ERREUR : <topichandler.go> Erreur dans la récupération de la liste des sujets : ", err)
+		utils.InternalServError(w)
+		return
 	}
 
 	data := struct {
 		PageName    string
+		AllTopics   []models.Topic
 		Topic       models.Topic
 		Categories  []models.Category
 		LoginErr    string
 		CurrentUser models.UserLoggedIn
 	}{
 		PageName:    topic.Name,
+		AllTopics:   allTopics,
 		Topic:       topic,
 		Categories:  categories,
 		LoginErr:    loginErr,
@@ -95,7 +106,7 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 
 	err = TopicHtml.Execute(w, data)
 	if err != nil {
-		log.Printf("<topichandler.go> Could not execute template <topic.html> : %v\n", err)
+		log.Printf("ERREUR : <topichandler.go> Erreur dans l'exécution de template <topic.html> : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}

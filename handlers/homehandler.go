@@ -28,7 +28,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	lastPosts, err := getdata.GetLastPosts()
 
 	if err != nil {
-		log.Printf("<homehandler.go> Could not oprate GetLastPosts: %v\n", err)
+		log.Printf("ERREUR : <homehandler.go> Erreur dans l'exécution de GetLastPosts: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -36,14 +36,14 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	// --- Récupération des catégories ---
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("<homehandler.go> Could not open database : %v\n", err)
+		log.Printf("ERREUR : <homehandler.go> Erreur à l'ouverture de la base de données : %v\n", err)
 		return
 	}
 	defer db.Close()
 
 	categories, currentUser, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("<homehandler.go> Erreur dans la construction du header : %v\n", err)
+		log.Printf("ERREUR : <homehandler.go> Erreur dans la construction du header : %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -52,7 +52,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 
 	session, err := sessions.GetSessionFromRequest(r)
 	if err != nil {
-		log.Printf("<homehandler.go> Could not execute GetSessionFromRequest: %v\n", err)
+		log.Printf("ERREUR : <homehandler.go> Erreur dans l'exécution de GetSessionFromRequest: %v\n", err)
 		utils.InternalServError(w)
 		return
 	}
@@ -60,7 +60,7 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	if session.ID != "" {
 		loginErr, err = getdata.GetLoginErr(session)
 		if err != nil {
-			log.Printf("<homehandler.go> Could not execute GetLoginErr: %v\n", err)
+			log.Printf("ERREUR : <homehandler.go> Erreur dans l'exécution de GetLoginErr: %v\n", err)
 		}
 	}
 
@@ -83,8 +83,8 @@ func HomeHandler(w http.ResponseWriter, r *http.Request) {
 	// --- Sinon : Renvoi des données de base au template ---
 	err = HomeHtml.Execute(w, data)
 	if err != nil {
-		log.Printf("<homehandler.go> Could not execute template <home.html>: %v\n", err)
+		log.Printf("ERREUR : <homehandler.go> Erreur dans l'exécution de template <home.html>: %v\n", err)
 		utils.NotFoundHandler(w)
-
+		return
 	}
 }

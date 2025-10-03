@@ -42,6 +42,7 @@ func InitRoutes() *http.ServeMux {
 	mux.HandleFunc("/messageactions", subhandlers.MessageActionsHandler)
 	mux.HandleFunc("/logout", authhandlers.LogOutHandler)
 	mux.HandleFunc("/answermessage", handlers.MessageHandler)
+	mux.HandleFunc("/sendrequest", subhandlers.RequestsHandler)
 
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
