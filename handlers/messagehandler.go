@@ -71,7 +71,7 @@ func MessageHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		postactions.NewPost(currentUser.ID, intID, message)
+		postactions.NewPost(currentUser.ID, intID, message, "")
 		// Redirection vers la page catégorie
 		http.Redirect(w, r, fmt.Sprintf("/topic/%d", intID), http.StatusSeeOther)
 		return

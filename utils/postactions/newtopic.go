@@ -38,7 +38,7 @@ func CreateNewtopic(userID, catID int, topicName, message string) error {
 	}
 
 	// Ajout du premier message du sujet dans la BDD
-	err = NewPost(userID, newtopic.TopicID, message)
+	err = NewPost(userID, newtopic.TopicID, message, "newtopic")
 	if err != nil {
 		log.Println("<newtopic.go> Erreur dans la création d'un nouveau message :", err)
 		return err
