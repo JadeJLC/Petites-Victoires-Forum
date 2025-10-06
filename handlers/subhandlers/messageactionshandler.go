@@ -75,14 +75,16 @@ func MessageActionsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusSeeOther)
 		return
 	case "edit":
-		err := admin.EditExistingMessage(postID, db)
+		content := r.FormValue("message-content")
+		err := admin.EditExistingMessage(postID, db, content)
 		if err != nil {
 			log.Print("ERREUR : <messageactionshandler> Erreur dans la modification du message' : ", err)
 			utils.InternalServError(w)
 			return
 		}
 		url := fmt.Sprintf("/topic/%d#%d", topicID, postID)
-		log.Printf("USER : %s a modifié le contenu du message n°%d : ", username, postID)
+		topic, _ := getdata.GetTopicInfo(db, topicID)
+		log.Printf("USER : %s a modifié le contenu du message n°%d (sur %s)", username, postID, topic.Name)
 		http.Redirect(w, r, url, http.StatusSeeOther)
 		return
 	case "move":
@@ -106,6 +108,7 @@ func MessageActionsHandler(w http.ResponseWriter, r *http.Request) {
 		http.Redirect(w, r, url, http.StatusSeeOther)
 		return
 	default:
+		log.Print("ERREUR : <messageactionshandler.go> Requête invalide sur la page message : ", r.FormValue("action"))
 		utils.StatusBadRequest(w)
 		return
 	}

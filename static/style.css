@@ -476,6 +476,13 @@ a.post-text {
   text-decoration: none;
 }
 
+.post-link {
+  height:15px;
+  float:right;
+  position: relative;
+  top:-40px;
+}
+
 /* Boutons like/dislike */
 .post-button {
   background-color: var(--color-logoback);

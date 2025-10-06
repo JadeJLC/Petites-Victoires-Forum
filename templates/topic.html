@@ -27,23 +27,25 @@
 
   <section class="posts-section">
             {{range $index, $message := .Topic.Messages}}
+            <form method="POST" action="/messageactions">
             <div class="post-card 
             {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID $message.Author.ID)}} {{if eq $message.Warning 1}} warning {{end}} {{end}}"
              id="{{$message.MessageID}}" >
                 <img class="post-avatar" src="{{$message.Author.ProfilPic}}"/>
                 <div class="post-content">
                     <div class="post-title">{{$message.Author.Username}}</div>
+                    <textarea name="message-content" class="edit-message is-hidden">{{$message.Content}}</textarea>
                     <pre class="post-text">
 {{$message.Content}}</pre>
                 <div class="post-actions">
-                            <form method="POST" action="/messageactions">
+                            
                                 <input type="hidden" name="modname" value="{{$.CurrentUser.Username}}">
                                 <input type="hidden" name="postID" value="{{$message.MessageID}}">
                                 <input type="hidden" name="topicID" value="{{$.Topic.TopicID}}">
                                {{if eq $.CurrentUser.UserType 1}}  
                                {{if eq $message.Warning 1}} <button name="action" style="cursor:pointer;" type="submit" value="cancel" title="Annuler le signalement">🔕</button> {{end}}
                                {{if ne $index 0}}
-                               <button class="cancelmove is-hidden" type="button" style="cursor:pointer;" onclick="CancelMove(this)">✖️</button>
+                               <button class="cancelmove is-hidden" type="button" style="cursor:pointer;" title="Annuler le déplacement" onclick="CancelMove(this)">✖️</button>
                                <select name="topicindex" class="topicindex is-hidden" title="Choisissez le sujet où placer le message">
                                 <option value=""></option>
                                     {{range $.AllTopics}}
@@ -57,19 +59,35 @@
                                
                     {{if eq $.CurrentUser.UserType 2}} 
                     {{if eq $message.Warning 0}}
-                    <button class="cancelwarn is-hidden" type="button" style="cursor:pointer;" onclick="CancelSignal(this)">✖️</button>
+                    <button class="cancelwarn is-hidden" type="button" style="cursor:pointer;" title="Annuler le signalement" onclick="CancelSignal(this)">✖️</button>
                     <input type="text" name="warning" placeholder="Raison du signalement" class="warning-input is-hidden">
                     <button name="action" style="cursor:pointer;" type="submit" value="warn" title="Signaler le message" onclick="Signal(this)" class="warnbutton">⚠️</button> {{end}} 
                     {{end}}
                    
                                {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID $message.Author.ID)}} 
-                            
 
-                               <button name="action" style=" cursor:pointer;" type="submit" value ="delete" title="Supprimer le message">🗑️</button>
-                               <button name="action" style="cursor: pointer;" type="submit" value="edit" title="Modifier le message">📝</button> {{end}}
-                            </form>
+                                <!-- Modal de confirmation pour la suppression -->
+            <div id="confirmationModal" class="modal is-hidden">
+                <div class="modal-content">
+                    <p>Êtes-vous sûr de vouloir supprimer ce message ? Cette action est irréversible.
+                    </p>
+                    <div class="modal-buttons">
+                        <button id="cancelDelete" class="modal-cancel-btn">Annuler</button>
+                        <button id="confirmDelete" name="action" value="delete" type="submit" class="modal-confirm-btn">Confirmer</button>
+                    </div>
                 </div>
-                </div>
+            </div>
+
+                    <button style="cursor:pointer;" class="delete-btn" type="button"  title="Supprimer le message">🗑️</button>
+
+
+                    
+                    <button class="canceledit is-hidden" type="button" style="cursor:pointer;" title="Annuler les modifications" onclick="CancelEdit(this)">✖️</button>
+                    <button class="send-edit is-hidden" style="cursor: pointer;" name="action" type="submit" value="edit" onclick="MessageEdited(this)" title="Valider les modifications">✅</button>
+                    <button name="action" style="cursor: pointer;" type="button" class="editbutton" onclick="EditMessage(this)" title="Modifier le message">📝</button> {{end}}
+                
+            </div>
+            </div></form>
 
             {{if or (eq $.CurrentUser.UserType 1) (eq $.CurrentUser.UserType 2) (eq $.CurrentUser.ID $message.Author.ID)}}    
                 {{if eq $message.Warning 1}} <span style="cursor:default" title="Ce message a été signalé comme potentiellement problématique">‼️</span>  {{end}}
@@ -109,14 +127,77 @@
     {{template "ReponseBox"}}
 
 
-   <style>.posts-section .post-card:first-child {
+   <style>.posts-section form:first-child .post-card {
   /* border-bottom:10px solid var(--color-highlight); */
   border-left:7px solid var(--color-highlight);
   margin-bottom: 25px;
 }</style>
      
 
-    <script>       
+    <script>   
+    // --- Local Modal Display/Hide Logic ---
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', (event) => {
+        // Prevent the default action (which is none, since type="button")
+        event.preventDefault(); 
+        
+        // Find the modal that is a direct sibling/child of the form's content
+        const form = event.target.closest('form');
+        const modal = form.querySelector('.modal'); // Use class selector since ID is duplicated
+        
+        if (modal) {
+            modal.classList.remove('is-hidden');
+            modal.style.display = 'flex';
+        }
+    });
+});
+
+document.querySelectorAll('.modal-cancel-btn').forEach(button => {
+    button.addEventListener('click', (event) => {
+        event.preventDefault(); // Stop form submission if this button was type="submit" (it's not)
+        
+        // Find the closest modal element
+        const modal = event.target.closest('.modal');
+        
+        if (modal) {
+            modal.classList.add('is-hidden');
+            modal.style.display = 'none';
+        }
+    });
+});
+     
+    
+    function EditMessage(editbutton) {
+        const form = editbutton.closest('form');
+        const editfield = form.querySelector('.edit-message');
+        const canceledit = form.querySelector('.canceledit');
+        const confirmedit = form.querySelector('.send-edit');
+        const textmessage = form.querySelector('.post-text');
+
+        if (editfield.classList.contains("is-hidden")) {
+            editfield.classList.remove("is-hidden");
+            canceledit.classList.remove("is-hidden");
+            confirmedit.classList.remove("is-hidden");
+            textmessage.classList.add("is-hidden");
+            editbutton.classList.add("is-hidden");
+        }
+    }
+
+    function CancelEdit(canceledit) {
+        const form = canceledit.closest('form');
+        const editfield = form.querySelector('.edit-message');
+        const editbutton = form.querySelector('.editbutton');
+        const confirmedit = form.querySelector('.send-edit');
+        const textmessage = form.querySelector('.post-text');
+
+
+        editfield.classList.add("is-hidden");
+        canceledit.classList.add("is-hidden");
+        confirmedit.classList.add("is-hidden");
+        textmessage.classList.remove("is-hidden")
+        editbutton.classList.remove("is-hidden");
+    }
+
     function Signal(warnbutton) {
         const form = warnbutton.closest('form');
         const warninginput = form.querySelector('.warning-input');
@@ -127,13 +208,6 @@
             cancelwarn.classList.remove("is-hidden");
             warninginput.required = true;
             warnbutton.innerHTML = "✅";
-        } else if (warnbutton.innerHTML.includes("✅")) {
-            // Note: This block isn't strictly necessary for the intended form submission flow, 
-            // as clicking a submit button usually sends the form. 
-            // However, I've left it to match the logic of the original else if.
-            warninginput.classList.add("is-hidden");
-            cancelwarn.classList.add("is-hidden");
-            warninginput.required = false;
         }
     }
 
@@ -159,11 +233,6 @@
             cancelmove.classList.remove("is-hidden");
             topicindex.required = true;
             movebutton.innerHTML = "✅";
-        } else if (movebutton.innerHTML.includes("✅")) {
-            // See note in Signal() function above.
-            topicindex.classList.add("is-hidden");
-            cancelmove.classList.add("is-hidden");
-            topicindex.required = false;
         }
     }
 

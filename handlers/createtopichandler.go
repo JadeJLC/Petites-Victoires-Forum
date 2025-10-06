@@ -11,6 +11,7 @@ import (
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils"
+	"github.com/Mathis-Pain/Forum/utils/getdata"
 	"github.com/Mathis-Pain/Forum/utils/postactions"
 )
 
@@ -79,7 +80,9 @@ func CreateTopicHandler(w http.ResponseWriter, r *http.Request) {
 		username, userID, _ := utils.GetUserNameAndIDByCookie(r, db)
 		postactions.CreateNewtopic(userID, catID, topicName, message)
 
-		log.Printf("USER : Nouveau sujet ouvert dans la catégorie %d par %s : %s", catID, username, topicName)
+		categ, _ := getdata.GetCatDetails(db, catID)
+
+		log.Printf("USER : Nouveau sujet ouvert dans la catégorie \"%s\" par %s : \"%s\"", categ.Name, username, topicName)
 
 		// Redirection vers la page de la catégorie
 		http.Redirect(w, r, fmt.Sprintf("/categorie/%d", catID), http.StatusSeeOther)

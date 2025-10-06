@@ -8,7 +8,7 @@ import (
 	"github.com/Mathis-Pain/Forum/utils/getdata"
 )
 
-func NewPost(userID, topicID int, message string) error {
+func NewPost(userID, topicID int, message string, mode string) error {
 	var newpost models.Message
 	newpost.Author.ID = userID
 	newpost.TopicID = topicID
@@ -29,7 +29,7 @@ func NewPost(userID, topicID int, message string) error {
 		log.Printf("ERREUR : <newpost.go> : Impossible de récupérer les données de l'utilisateur %d : %v\n", userID, err)
 		return err
 	}
-	err = addPostToDatabase(db, newpost)
+	err = addPostToDatabase(db, newpost, mode)
 
 	if err != nil {
 		log.Println("ERREUR : <newpost.go> Erreur lors de la création du nouveau message : ", err)
@@ -39,7 +39,7 @@ func NewPost(userID, topicID int, message string) error {
 	return nil
 }
 
-func addPostToDatabase(db *sql.DB, newpost models.Message) error {
+func addPostToDatabase(db *sql.DB, newpost models.Message, mode string) error {
 	sqlUpdate := `INSERT INTO message (topic_id, content, user_id) VALUES(?, ?, ?)`
 	stmt, err := db.Prepare(sqlUpdate)
 	if err != nil {
@@ -52,7 +52,9 @@ func addPostToDatabase(db *sql.DB, newpost models.Message) error {
 	}
 
 	topic, _ := getdata.GetTopicInfo(db, newpost.TopicID)
-	log.Printf("USER : L'utilisateur %s a posté une réponse sur le sujet %s (%d)\n", newpost.Author.Username, topic.Name, newpost.TopicID)
+	if mode != "newtopic" {
+		log.Printf("USER : L'utilisateur %s a posté une réponse sur le sujet \"%s\" (%d)\n", newpost.Author.Username, topic.Name, newpost.TopicID)
+	}
 
 	return nil
 }

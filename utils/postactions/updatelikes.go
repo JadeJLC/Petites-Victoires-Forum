@@ -37,14 +37,18 @@ func RemoveLikesAndDislikes(db *sql.DB, postID, userID int, table string) error 
 	case "dislike":
 		sqlUpdate = `DELETE FROM dislike WHERE user_id = ? AND message_id = ?`
 	}
-	_, err := db.Exec(sqlUpdate, userID, postID)
+	result, err := db.Exec(sqlUpdate, userID, postID)
 	if err != nil {
 		log.Printf("ERREUR : <updatelikes.go> Erreur dans la suppression du like/dislike sur le post %d : %v", postID, err)
 		return err
 	}
 
-	user, _ := getdata.GetUserInfoFromID(db, userID)
-	log.Printf("USER : L'utilisateur %s a supprimé un %s sur le post n°%d", user.Username, table, postID)
+	n, _ := result.RowsAffected()
+
+	if n != 0 {
+		user, _ := getdata.GetUserInfoFromID(db, userID)
+		log.Printf("USER : L'utilisateur %s a supprimé un %s sur le post n°%d", user.Username, table, postID)
+	}
 
 	return nil
 }
