@@ -3,12 +3,12 @@
     <header class="header">
       <a href="/" class="logo-section">
         <div class="logo"></div>
-        <div class="title">Forum</div>
+        <div class="title">Petites Victoires</div>
       </div>
       <nav class="nav-section">
        {{if .CurrentUser.LogStatus}} <a href="/profil" class="nav-link">Profil</a>{{end}}
         <li class="dropdown">
-          <a href="#">Catégories</a>
+          <div class="nav-link nav-cat">Catégories</div>
           <ul class="dropdown-menu">
            {{ range .Categories }}
             <li><a href="/categorie/{{.ID}}">{{.Name}}</a></li>
@@ -22,9 +22,7 @@
           Connecté en tant que {{.CurrentUser.Username}} 🠯
         </button>
           <ul class="dropdown-menu">
-            <li><form action="/logout" method="POST">
-  <button type="submit">Se déconnecter</button>
-</form>
+            <li><a href="/logout">Se déconnecter
           {{if eq .CurrentUser.UserType 1}}<a href="/admin">Panneau d'administration</a>{{end}}
           </li>
           </ul>

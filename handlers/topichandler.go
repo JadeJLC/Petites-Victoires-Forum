@@ -20,7 +20,6 @@ var TopicHtml = template.Must(template.New("topic.html").ParseFiles(
 	"templates/header.html",
 	"templates/topic.html",
 	"templates/initpage.html",
-	"templates/reponsebox.html",
 ))
 
 func TopicHandler(w http.ResponseWriter, r *http.Request) {
@@ -49,6 +48,8 @@ func TopicHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	topic.TopicID = ID
+
+	topic.Messages = getdata.FormatDate(topic.Messages)
 
 	// Supprime le sujet et redirige vers la page d'accueil s'il ne contient aucun message (sécurité anti bug de la BDD)
 	if len(topic.Messages) == 0 {
