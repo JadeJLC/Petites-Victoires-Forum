@@ -2,14 +2,15 @@ package authhandlers
 
 import (
 	"database/sql"
+	"fmt"
 	"html/template"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/Mathis-Pain/Forum/handlers/subhandlers"
 	"github.com/Mathis-Pain/Forum/models"
 	"github.com/Mathis-Pain/Forum/utils"
+	"github.com/Mathis-Pain/Forum/utils/logs"
 	_ "github.com/mattn/go-sqlite3"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -25,14 +26,16 @@ var registrationHtml = template.Must(template.New("registration.html").Funcs(fun
 func SignUpSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	db, err := sql.Open("sqlite3", "./data/forum.db")
 	if err != nil {
-		log.Printf("ERREUR : <cathandler.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		logMsg := fmt.Sprintf("ERREUR : <cathandler.go> Erreur à l'ouverture de la base de données : %v\n", err)
+		logs.AddLogsToDatabase(logMsg)
 		return
 	}
 	defer db.Close()
 
-	categories, _, err := subhandlers.BuildHeader(r, w, db)
+	_, categories, _, err := subhandlers.BuildHeader(r, w, db)
 	if err != nil {
-		log.Printf("ERREUR : <cathandler.go> Erreur dans la construction du header : %v\n", err)
+		logMsg := fmt.Sprintf("ERREUR : <cathandler.go> Erreur dans la construction du header : %v\n", err)
+		logs.AddLogsToDatabase(logMsg)
 		utils.InternalServError(w)
 		return
 	}
@@ -55,7 +58,8 @@ func SignUpSubmitHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		// GET : afficher le formulaire vide
 		if err := registrationHtml.Execute(w, data); err != nil {
-			log.Print("Erreur dans l'affichage de la page d'inscription :", err)
+			logMsg := fmt.Sprint("Erreur dans l'affichage de la page d'inscription :", err)
+			logs.AddLogsToDatabase(logMsg)
 			utils.InternalServError(w)
 		}
 		return
@@ -122,7 +126,8 @@ func SignUpSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow("SELECT COUNT(*) FROM user").Scan(&count)
 
 	if err != nil && err != sql.ErrNoRows {
-		log.Printf("ERREUR : Impossible de compter les utilisateurs existants : %v", err)
+		logMsg := fmt.Sprintf("ERREUR : Impossible de compter les utilisateurs existants : %v", err)
+		logs.AddLogsToDatabase(logMsg)
 		utils.InternalServError(w)
 		return
 	}
@@ -152,6 +157,7 @@ func SignUpSubmitHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// --- Succès : redirection vers la page d'accueil ---
-	log.Println("USER : Un nouvel utilisateur s'est inscrit : ", username)
+	logMsg := fmt.Sprintln("USER : Un nouvel utilisateur s'est inscrit : ", username)
+	logs.AddLogsToDatabase(logMsg)
 	http.Redirect(w, r, "/", http.StatusSeeOther)
 }

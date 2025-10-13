@@ -6,8 +6,8 @@
 
 <div class="dashboard-header">
   <div class="topic-top">
-    <h2>{{.Topic.Name}}</h2>
-     {{if .CurrentUser.LogStatus}}<form action="/answermessage" method="GET">
+    <h2><a href="/categorie/{{.Topic.CatID}}" style="text-decoration: none;"> {{.CatName}} </a> ➤ {{.Topic.Name}}</h2>
+    {{if and .CurrentUser.LogStatus (ne .CurrentUser.UserType 4)}} <form action="/answermessage" method="GET">
           <input type="hidden" name="topic_id" value="{{.Topic.TopicID}}"> 
           <button type="submit" class="respond-btn">
            Répondre 
@@ -18,7 +18,8 @@
 
 <main class="main-content">
 
-    <aside class="sidebar"><h3>Naviguer sur le sujet</h3>
+    <aside class="sidebar">
+        <h3>Naviguer sur le sujet</h3>
         {{range .Topic.Messages}}
      <div class="topic-index">   • <a href="#{{.MessageID}}">Message du {{.Created}}</a> par {{.Author.Username}}
       </div>
@@ -127,7 +128,7 @@
 
    <style>
    .posts-section form:first-child .post-card {
-    border-left:7px solid var(--color-highlight);
+    border-left:7px solid var(--color-btnhover);
     margin-bottom: 25px;
     }
     .post-text {
@@ -145,6 +146,7 @@ document.querySelectorAll('.delete-btn').forEach(button => {
         const modal = form.querySelector('.modal'); // Use class selector since ID is duplicated
         
         if (modal) {
+            form.classList.add('overall');
             modal.classList.remove('is-hidden');
             modal.style.display = 'flex';
         }
@@ -153,12 +155,14 @@ document.querySelectorAll('.delete-btn').forEach(button => {
 
 document.querySelectorAll('.modal-cancel-btn').forEach(button => {
     button.addEventListener('click', (event) => {
-        event.preventDefault(); // Stop form submission if this button was type="submit" (it's not)
+        event.preventDefault();
         
         // Find the closest modal element
+        const form = event.target.closest('form');
         const modal = event.target.closest('.modal');
         
         if (modal) {
+            form.classList.remove('overall');
             modal.classList.add('is-hidden');
             modal.style.display = 'none';
         }
