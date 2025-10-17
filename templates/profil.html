@@ -43,9 +43,6 @@
         <button onclick="ShowLikes()" class="profil-btn">Messages que j'ai 👍 ou 👎</button>
         <button onclick="ShowPosts()" class="profil-btn">💬 Tous mes messages</button>
         <button onclick="ShowTopics()" class="profil-btn">🔖 Sujets que j'ai ouverts</button>
-        {{if eq .User.Status "Modérateur"}}
-        <button onclick="ShowMod()"  class="profil-btn">Historique de modération</button>
-        {{end}}
         </div>
 
           
@@ -152,19 +149,6 @@
         </div>
         {{end}}
       </section>
-
-      <section class="posts-section is-hidden" id="see-my-history"><div class="dashboard-header">
-  <div class="topic-top"> <h2>Historique de modération</h2>
-    </div></div><br>
-        
-        <div class="post-card">
-          <div class="post-content">
-            <div class="post-text">
-              <center>Bonjour, ici on affichera l'historique des actions de modération.</center>
-            </div>
-          </div>
-        </div>
-      </section>
       
     </main>
 
@@ -223,14 +207,6 @@
         MyPosts.classList.add("is-hidden");
         MyTopics.classList.remove("is-hidden");
         ModHistory.classList.add("is-hidden");
-      }
-
-      function ShowMod() {
-        LikedPosts.classList.add("is-hidden");
-        DislikedPosts.classList.add("is-hidden");
-        MyPosts.classList.add("is-hidden");
-        MyTopics.classList.add("is-hidden");
-        ModHistory.classList.remove("is-hidden");
       }
     </script>
   </body>

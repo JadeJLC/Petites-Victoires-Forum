@@ -33,7 +33,7 @@
 body {
   font-family: var(--font-main);
   background-color: var(--color-pageback);
-  background-image: url('/static/pageback.jpg');
+  background-image: url('/static/images/pageback.jpg');
   background-size:cover cover;
   background-attachment: fixed;
   color: var(--color-write);
