@@ -11,6 +11,7 @@ import (
 	"github.com/Mathis-Pain/Forum/sessions"
 	"github.com/Mathis-Pain/Forum/test"
 	"github.com/Mathis-Pain/Forum/utils"
+	"github.com/Mathis-Pain/Forum/utils/external"
 )
 
 func InitRoutes() *http.ServeMux {
@@ -37,7 +38,6 @@ func InitRoutes() *http.ServeMux {
 	mux.HandleFunc("/like", subhandlers.LikePostHandler)
 	mux.HandleFunc("/dislike", subhandlers.DislikePostHandler)
 	mux.HandleFunc("/messageactions", subhandlers.MessageActionsHandler)
-	mux.HandleFunc("/sendrequest", subhandlers.RequestsHandler)
 
 	//******** Pages principales (accessibles)
 	// Pages pour poster des messages
@@ -50,6 +50,14 @@ func InitRoutes() *http.ServeMux {
 	mux.HandleFunc("/categorie/", handlers.CategoriesHandler)
 	mux.HandleFunc("/admin/", handlers.AdminHandler)
 	mux.HandleFunc("/topic/", handlers.TopicHandler)
+
+	// Authentification par google ou github
+	mux.HandleFunc("/auth/google/login", external.HandleGoogleLogin)
+	mux.HandleFunc("/auth/google/callback", external.HandleGoogleCallback)
+	mux.HandleFunc("/auth/github/login", external.HandleGitHubLogin)
+	mux.HandleFunc("/auth/github/callback", external.HandleGitHubCallback)
+	mux.HandleFunc("/auth/discord/login", external.HandleDiscordLogin)
+	mux.HandleFunc("/auth/discord/callback", external.HandleDiscordCallback)
 
 	fs := http.FileServer(http.Dir("static"))
 	mux.Handle("/static/", http.StripPrefix("/static/", fs))
