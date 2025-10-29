@@ -9,15 +9,12 @@
 # https://github.com/docker/awesome-compose
 services:
   server:
-    build:
-      context: .
-      target: final
+    build: .
     ports:
       - 9000:5080
     volumes:
       - ./data:/app/data
-      - ./external.env:/app/external.env:ro # Monte le fichier env (lecture seule)
-
+      - ./external.env:/app/external.env:ro
 # The commented out section below is an example of how to define a PostgreSQL
 # database that your application can use. `depends_on` tells Docker Compose to
 # start the database before your application. The `db-data` volume persists the
