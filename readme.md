@@ -30,15 +30,20 @@ Pour lancer le projet localement, suivez ces étapes :
 
 Cloner le repo :
 
-````git clone https://github.com/JadeJLC/Petites-Victoires-forum-.git
-cd Petites-Victoires-forum-```
+```bash
+git clone https://github.com/JadeJLC/Petites-Victoires-forum-.git
+cd Petites-Victoires-forum-
+```
 
-```docker build -t forum .
-docker run -p 5090:5080 -v $(pwd)/data:/data forum```
+Lancer le serveur :
+
+```bash
+docker build -t forum .
+docker run -p 5090:5080 -v $(pwd)/data:/data forum
+```
 
 Les données d'environnement (Authentification Google, Github et Discord) ne sont pas transmises en public. Si vous voulez activer ces fonctionnalités, vous devez posséder vos propres clés d'authentification.
 
 ## Réalisation
 
 Projet réalisé dans le cadre de la formation Zone01.
-````
